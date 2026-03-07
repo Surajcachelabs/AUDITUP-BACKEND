@@ -5,6 +5,8 @@ import { evaluateGreetings } from './src/greetings.js'
 import { evaluateClosingStatement } from './src/closingStatement.js'
 import { evaluateSummery } from './src/summery.js'
 import { evaluateLegalDisclamer } from './src/LegalDisclamer.js'
+import { evaluateEmpathy } from './src/empathy.js'
+import { evaluateSlangSeverity } from './src/slangSeverity.js'
 
 const app = express()
 const port = Number(process.env.PORT || 8000)
@@ -33,10 +35,13 @@ app.post('/api/evaluate', async (req, res) => {
     const closingStatement = await evaluateClosingStatement(transcript)
     const summery = await evaluateSummery(transcript)
     const legalDisclamer = await evaluateLegalDisclamer(transcript)
+    const empathy = await evaluateEmpathy(transcript)
+    const slangSeverity = await evaluateSlangSeverity(transcript)
 
-    const totalScore =
-      greetings.score + closingStatement.score + summery.score + legalDisclamer.score
-    const maxScore = 4
+    const positiveScore =
+      greetings.score + closingStatement.score + summery.score + legalDisclamer.score + empathy.score
+    const totalScore = Math.max(0, positiveScore - (slangSeverity.final_value ?? 0))
+    const maxScore = 7
 
     return res.json({
       score_summary: {
@@ -48,7 +53,9 @@ app.post('/api/evaluate', async (req, res) => {
         greetings,
         closingStatement,
         summery,
-        legalDisclamer
+        legalDisclamer,
+        empathy,
+        slangSeverity
       },
       generated_at_utc: new Date().toISOString()
     })

@@ -1,13 +1,15 @@
 # Backend
 
-Transcript evaluator backend for 4 criteria scoring:
+Transcript evaluator backend for 6 criteria scoring:
 
 1. Greetings (`0` or `1`)
 2. Closing statement (`0` or `1`)
 3. Summery (`0` or `1`)
 4. Legal disclamer (`0` or `1`)
+5. Empathy (`0` to `3`)
+6. Slang severity (`0` to `5`, converted to subtraction value)
 
-Total score is out of `4`.
+Total score is out of `7` with slang severity deduction.
 
 ## Setup
 
@@ -38,6 +40,8 @@ Response includes:
 	- closingStatement
 	- summery
 	- legalDisclamer
+	- empathy
+	- slangSeverity
 
 Evaluation is returned in API response only (no output files are saved by the backend logic).
 
