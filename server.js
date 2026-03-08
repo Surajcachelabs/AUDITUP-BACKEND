@@ -7,6 +7,7 @@ import { evaluateSummery } from './src/summery.js'
 import { evaluateLegalDisclamer } from './src/LegalDisclamer.js'
 import { evaluateEmpathy } from './src/empathy.js'
 import { evaluateSlangSeverity } from './src/slangSeverity.js'
+import { detectEscalationSignal } from './src/shared.js'
 
 const app = express()
 const port = Number(process.env.PORT || 8000)
@@ -37,6 +38,7 @@ app.post('/api/evaluate', async (req, res) => {
     const legalDisclamer = await evaluateLegalDisclamer(transcript)
     const empathy = await evaluateEmpathy(transcript)
     const slangSeverity = await evaluateSlangSeverity(transcript)
+    const escalation = detectEscalationSignal(transcript)
 
     const positiveScore =
       greetings.score + closingStatement.score + summery.score + legalDisclamer.score + empathy.score
@@ -56,6 +58,11 @@ app.post('/api/evaluate', async (req, res) => {
         legalDisclamer,
         empathy,
         slangSeverity
+      },
+      escalation: {
+        is_escalated: escalation.isEscalated,
+        names: escalation.escalationNames,
+        matches: escalation.escalationMatches
       },
       generated_at_utc: new Date().toISOString()
     })

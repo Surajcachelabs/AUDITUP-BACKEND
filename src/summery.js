@@ -7,6 +7,30 @@ import {
 } from './shared.js'
 import { runOpenAiIntentFallback } from './openAiFallback.js'
 
+const SUMMARY_INTENT_PATTERNS = [
+  /\bsummari[sz]e\b/i,
+  /\bsummary\b/i,
+  /\bto\s+summari[sz]e\b/i,
+  /\bto\s+recap\b/i,
+  /\blet\s+me\s+recap\b/i,
+  /\bin\s+summary\b/i,
+  /\bjust\s+to\s+recap\b/i,
+  /here\s+is\s+what\s+we\s+discussed\s+today/i,
+  /these\s+are\s+the\s+points\s+we\s+covered/i,
+  /let\s+me\s+quickly\s+go\s+over\s+everything\s+again/i,
+  /these\s+are\s+the\s+action\s+items/i,
+  /these\s+are\s+the\s+next\s+steps/i
+]
+
+const SUMMARY_LLM_INSTRUCTIONS = [
+  'Determine whether Summarization is present in these CSM segments from the final 30% of the call.',
+  'Definition: Summarization is present when the speaker indicates an intent to recap, summarize, or list key points discussed during the conversation.',
+  'Mark detected true if the transcript contains explicit keywords such as "summarize", "summary", "to summarize", "to recap", "let me recap", "in summary", or "just to recap".',
+  'Also mark detected true for intent-based recap statements such as "Here is what we discussed today.", "These are the points we covered.", "Let me quickly go over everything again.", "These are the action items.", or "These are the next steps."',
+  'Important rule: mark Summarization as present even if the detailed summary points are incomplete or missing, as long as the intent to summarize or recap is clearly stated.',
+  'Return the strongest supporting segment text and timestamp as evidence.'
+].join(' ')
+
 const STOP_WORDS = new Set([
   'the',
   'a',
@@ -61,25 +85,40 @@ const INTENT_DEFINITIONS = [
   }
 ]
 
-function buildPassOutput({ timestamp, text }) {
+function buildPassOutput({ timestamp, text, reason, decisionSource, llmResult }) {
   return {
     parameter: 'Call Summarisation',
     summary_detected: true,
     score: 1,
     status: 'PASS',
     summary_timestamp: timestamp,
-    summary_text: text
+    summary_text: text,
+    reason,
+    decision_source: decisionSource,
+    ml_detected: Boolean(llmResult?.detected),
+    ml_timestamp: llmResult?.timestamp ?? null,
+    ml_evidence_text: llmResult?.text ?? null,
+    ml_reason: llmResult?.reason ?? null
   }
 }
 
-function buildFailOutput() {
+function buildFailOutput({ reason, llmResult } = {}) {
   return {
     parameter: 'Call Summarisation',
     summary_detected: false,
     score: 0,
     status: 'FAIL',
-    reason: 'No valid summary detected in the final 30% of the call.'
+    reason: reason ?? 'No valid summary detected in the final 30% of the call.',
+    decision_source: llmResult?.detected ? 'llm-negative' : 'rule-negative',
+    ml_detected: Boolean(llmResult?.detected),
+    ml_timestamp: llmResult?.timestamp ?? null,
+    ml_evidence_text: llmResult?.text ?? null,
+    ml_reason: llmResult?.reason ?? null
   }
+}
+
+function hasExplicitSummaryIntent(text) {
+  return SUMMARY_INTENT_PATTERNS.some((pattern) => pattern.test(text))
 }
 
 function buildNgramSet(text, n = 2) {
@@ -213,6 +252,14 @@ function selectBestSummaryCandidate(candidates, intent, discussionKeywordSet) {
     return null
   }
 
+  const explicitIntentCandidates = candidates.filter((candidate) => candidate.matchType === 'explicit-intent')
+
+  if (explicitIntentCandidates.length > 0) {
+    return explicitIntentCandidates.reduce((latest, current) =>
+      current.timestampSeconds > latest.timestampSeconds ? current : latest
+    )
+  }
+
   const intentAligned = candidates.filter((candidate) =>
     isIntentAligned(candidate.text, intent, discussionKeywordSet)
   )
@@ -241,6 +288,14 @@ function findRepositoryOrFlexibleCandidates(segments, repositoryPhrases) {
   const candidates = []
 
   for (const segment of segments) {
+    if (hasExplicitSummaryIntent(segment.text)) {
+      candidates.push({
+        ...segment,
+        matchType: 'explicit-intent'
+      })
+      continue
+    }
+
     const normalizedSegment = normalizeText(segment.text)
 
     for (const phraseRecord of phraseRecords) {
@@ -250,7 +305,10 @@ function findRepositoryOrFlexibleCandidates(segments, repositoryPhrases) {
           normalizedSegment.split(' ').includes(phraseRecord.normalized))
 
       if (strictMatch) {
-        candidates.push(segment)
+        candidates.push({
+          ...segment,
+          matchType: 'repository'
+        })
         break
       }
 
@@ -260,7 +318,10 @@ function findRepositoryOrFlexibleCandidates(segments, repositoryPhrases) {
       const threshold = phraseRecord.tokenCount <= 2 ? 0.8 : phraseRecord.tokenCount <= 5 ? 0.7 : 0.6
 
       if (score >= threshold) {
-        candidates.push(segment)
+        candidates.push({
+          ...segment,
+          matchType: 'flexible'
+        })
         break
       }
     }
@@ -309,26 +370,41 @@ export async function evaluateSummery(transcriptPayload) {
     discussionKeywordSet
   )
 
-  if (repositoryOrFlexibleMatch) {
-    return buildPassOutput({
-      timestamp: repositoryOrFlexibleMatch.timestamp,
-      text: repositoryOrFlexibleMatch.text
-    })
-  }
-
   const aiFallback = await runOpenAiIntentFallback({
     parameterName: 'Call Summarisation Detection',
-    instructions:
-      'Decide whether these CSM segments from the final 30% of the call contain a valid summary that recaps discussion and outcomes. Mark detected true only if summary intent is clear.',
+    instructions: SUMMARY_LLM_INSTRUCTIONS,
     segments: csmWindowSegments
   })
 
-  if (aiFallback?.detected && isIntentAligned(aiFallback.text ?? '', detectedIntent, discussionKeywordSet)) {
+  if (repositoryOrFlexibleMatch) {
     return buildPassOutput({
-      timestamp: aiFallback.timestamp,
-      text: aiFallback.text
+      timestamp: repositoryOrFlexibleMatch.timestamp,
+      text: repositoryOrFlexibleMatch.text,
+      reason:
+        aiFallback?.detected && aiFallback.reason
+          ? `Rule-based detection found summary intent in the final 30% of the call. ML confirmation: ${aiFallback.reason}`
+          : 'Rule-based detection found summary intent in the final 30% of the call.',
+      decisionSource: aiFallback?.detected ? 'rule+llm' : 'rule',
+      llmResult: aiFallback
     })
   }
 
-  return buildFailOutput()
+  if (aiFallback?.detected) {
+    return buildPassOutput({
+      timestamp: aiFallback.timestamp,
+      text: aiFallback.text,
+      reason:
+        aiFallback.reason ||
+        'ML detection identified clear recap or summary intent in the final 30% of the call.',
+      decisionSource: 'llm',
+      llmResult: aiFallback
+    })
+  }
+
+  return buildFailOutput({
+    reason:
+      aiFallback?.reason ||
+      'No valid summary detected in the final 30% of the call by rule-based checks or ML evaluation.',
+    llmResult: aiFallback
+  })
 }

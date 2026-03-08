@@ -4,6 +4,33 @@ import path from 'node:path'
 const JSON_DIR = path.join(process.cwd(), 'Json')
 const TIMESTAMP_LINE_REGEX =
   /^\s*["']?\[?(\d{1,2}(?::\d{2}){1,2}(?:\.\d+)?)\s*(?:-\s*(\d{1,2}(?::\d{2}){1,2}(?:\.\d+)?))?\]?\s*([A-Za-z][A-Za-z ]*)\s*:\s*(.*?)["']?\s*,?\s*$/
+const SPEAKER_ONLY_LINE_REGEX = /^\s*["']?([A-Za-z][A-Za-z ]*)\s*:\s*(.*?)\s*["']?\s*,?\s*$/
+
+const CSM_TEAM_MEMBER_NAMES = [
+  'Aditya Shekhar',
+  'Bhawna Pasrija',
+  'Diya Bij',
+  'Debashish Parida',
+  'Pragya Arora',
+  'Khushi Kumari CSM',
+  'Shanya Gandhi',
+  'Shikha Jha',
+  'Vanshika Gupta',
+  'Shriyan Aggarwal',
+  'Garv Aggarwal',
+  'Ishika Aggarwal',
+  'Rozanne Khan',
+  'Mohit Bajpai',
+  'Harshita Rajoria'
+]
+
+const ESCALATION_MEMBER_NAMES = ['Ragini Gupta', 'Sweta Singh']
+
+const NORMALIZED_CSM_TEAM_MEMBER_NAMES = CSM_TEAM_MEMBER_NAMES.map((name) => normalizeText(name))
+const NORMALIZED_ESCALATION_MEMBER_NAMES = ESCALATION_MEMBER_NAMES.map((name) => normalizeText(name))
+const ESCALATION_NAME_BY_NORMALIZED = new Map(
+  ESCALATION_MEMBER_NAMES.map((name) => [normalizeText(name), name])
+)
 
 export function normalizeText(value) {
   return String(value ?? '')
@@ -97,31 +124,64 @@ export function parseTranscriptInput(payload) {
   return collected.join('\n')
 }
 
+function isNameMatch(normalizedSpeaker, normalizedName) {
+  return (
+    normalizedSpeaker === normalizedName ||
+    normalizedSpeaker.startsWith(`${normalizedName} `) ||
+    normalizedSpeaker.endsWith(` ${normalizedName}`)
+  )
+}
+
+function isKnownSpeakerName(normalizedSpeaker, normalizedNames) {
+  return normalizedNames.some((name) => isNameMatch(normalizedSpeaker, name))
+}
+
 function parseSegmentsFromText(transcriptText) {
   const lines = String(transcriptText ?? '').split(/\r?\n/)
   const segments = []
+  let syntheticTimestampSeconds = 0
 
   for (const line of lines) {
-    const match = line.match(TIMESTAMP_LINE_REGEX)
-    if (!match) {
+    const timestampedMatch = line.match(TIMESTAMP_LINE_REGEX)
+
+    if (timestampedMatch) {
+      const [, startTimestampRaw, endTimestampRaw, speakerRaw, textRaw] = timestampedMatch
+      const timestampSeconds = parseTimestampToSeconds(startTimestampRaw)
+      const endTimestampSeconds = parseTimestampToSeconds(endTimestampRaw) ?? timestampSeconds
+
+      if (timestampSeconds == null) {
+        continue
+      }
+
+      segments.push({
+        timestamp: String(startTimestampRaw).trim(),
+        timestampSeconds,
+        endTimestampSeconds,
+        speaker: String(speakerRaw).trim(),
+        text: String(textRaw).trim()
+      })
+
+      syntheticTimestampSeconds = Math.max(syntheticTimestampSeconds, endTimestampSeconds + 1)
       continue
     }
 
-    const [, startTimestampRaw, endTimestampRaw, speakerRaw, textRaw] = match
-    const timestampSeconds = parseTimestampToSeconds(startTimestampRaw)
-    const endTimestampSeconds = parseTimestampToSeconds(endTimestampRaw) ?? timestampSeconds
-
-    if (timestampSeconds == null) {
+    const speakerOnlyMatch = line.match(SPEAKER_ONLY_LINE_REGEX)
+    if (!speakerOnlyMatch) {
       continue
     }
+
+    const [, speakerRaw, textRaw] = speakerOnlyMatch
+    const timestampSeconds = syntheticTimestampSeconds
 
     segments.push({
-      timestamp: String(startTimestampRaw).trim(),
+      timestamp: formatTimestampFromSeconds(timestampSeconds),
       timestampSeconds,
-      endTimestampSeconds,
+      endTimestampSeconds: timestampSeconds,
       speaker: String(speakerRaw).trim(),
       text: String(textRaw).trim()
     })
+
+    syntheticTimestampSeconds += 1
   }
 
   return segments
@@ -210,8 +270,70 @@ export function extractTranscriptSegments(payload) {
 }
 
 export function isCsmSpeaker(speaker) {
-  const normalizedSpeaker = normalizeText(speaker).replace(/\s+/g, '')
-  return normalizedSpeaker === 'csm' || normalizedSpeaker.startsWith('csm')
+  const normalizedSpeaker = normalizeText(speaker)
+  const compactSpeaker = normalizedSpeaker.replace(/\s+/g, '')
+
+  if (compactSpeaker === 'csm' || compactSpeaker.startsWith('csm')) {
+    return true
+  }
+
+  return isKnownSpeakerName(normalizedSpeaker, NORMALIZED_CSM_TEAM_MEMBER_NAMES)
+}
+
+function addEscalationMatch(matchMap, normalizedName, timestamp, source) {
+  if (matchMap.has(normalizedName)) {
+    return
+  }
+
+  matchMap.set(normalizedName, {
+    name: ESCALATION_NAME_BY_NORMALIZED.get(normalizedName) ?? normalizedName,
+    timestamp: timestamp ?? null,
+    source
+  })
+}
+
+function collectEscalationMatchesFromSegments(segments) {
+  const matchMap = new Map()
+
+  for (const segment of segments) {
+    const normalizedSpeaker = normalizeText(segment.speaker)
+    const normalizedText = normalizeText(segment.text)
+
+    for (const escalationName of NORMALIZED_ESCALATION_MEMBER_NAMES) {
+      if (isNameMatch(normalizedSpeaker, escalationName)) {
+        addEscalationMatch(matchMap, escalationName, segment.timestamp, 'speaker')
+      }
+
+      if (normalizedText.includes(escalationName)) {
+        addEscalationMatch(matchMap, escalationName, segment.timestamp, 'text')
+      }
+    }
+  }
+
+  return matchMap
+}
+
+export function detectEscalationSignal(transcriptPayload) {
+  const segments = extractTranscriptSegments(transcriptPayload)
+  const matchMap = collectEscalationMatchesFromSegments(segments)
+
+  if (matchMap.size === 0) {
+    const normalizedTranscript = normalizeText(parseTranscriptInput(transcriptPayload))
+
+    for (const escalationName of NORMALIZED_ESCALATION_MEMBER_NAMES) {
+      if (normalizedTranscript.includes(escalationName)) {
+        addEscalationMatch(matchMap, escalationName, null, 'transcript')
+      }
+    }
+  }
+
+  const escalationMatches = [...matchMap.values()]
+
+  return {
+    isEscalated: escalationMatches.length > 0,
+    escalationNames: escalationMatches.map((match) => match.name),
+    escalationMatches
+  }
 }
 
 export function getTotalCallDurationSeconds(segments) {

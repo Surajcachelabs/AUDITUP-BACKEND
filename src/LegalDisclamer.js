@@ -8,7 +8,11 @@ import { runOpenAiIntentFallback } from './openAiFallback.js'
 
 const NOT_ATTORNEY_PATTERNS = [
   /not\s+(?:an\s+)?attorneys?/i,
+  /i\s+am\s+not\s+(?:an\s+)?attorneys?/i,
   /not\s+lawyers?/i,
+  /i\s+am\s+not\s+(?:a\s+)?lawyer/i,
+  /our\s+company\s+is\s+not\s+(?:a\s+)?law\s+firm/i,
+  /we\s+are\s+not\s+(?:a\s+)?law\s+firm/i,
   /not\s+legal\s+attorneys?/i,
   /not\s+legal\s+representatives?/i,
   /cannot\s+provide\s+legal\s+representation/i
@@ -18,36 +22,56 @@ const NOT_LEGAL_ADVICE_PATTERNS = [
   /not\s+legal\s+advice/i,
   /does\s+not\s+constitute\s+legal\s+advice/i,
   /should\s+not\s+be\s+considered\s+legal\s+(?:advice|counsel)/i,
+  /anything\s+discussed\s+(?:here|on\s+this\s+call)\s+is\s+not\s+legal\s+advice/i,
+  /general\s+guidance\s+and\s+not\s+legal\s+advice/i,
   /cannot\s+offer\s+legal\s+opinions/i,
   /informational\s+guidance\s*,?\s*not\s+legal\s+advice/i,
   /guidance\s+(?:rather\s+than|not)\s+legal\s+(?:advice|counsel)/i
 ]
 
 const LEGAL_LIMITATION_CONTEXT_PATTERNS = [
-  /we\s+provide\s+guidance\s+based\s+on\s+(?:our\s+)?(?:process|policy)/i,
   /you\s+may\s+consult\s+an\s+attorney/i,
   /this\s+call\s+is\s+for\s+informational\s+purposes\s+only/i,
   /nothing\s+discussed\s+(?:here|on\s+this\s+call)\s+is\s+legal\s+advice/i
 ]
 
-function buildPassOutput({ timestamp, text }) {
+const LEGAL_DISCLAIMER_LLM_INSTRUCTIONS = [
+  'Determine whether a Legal Disclaimer is present in these CSM segments.',
+  'Definition: A Legal Disclaimer is present when the speaker communicates that they are not providing legal advice and or are not attorneys, clarifying that the information shared should not be interpreted as legal counsel.',
+  'Mark detected true if the transcript conveys either or both of these intents: a non-attorney statement such as "We are not attorneys.", "I am not a lawyer.", or "Our company is not a law firm.", and a non-legal-advice statement such as "This should not be considered legal advice.", "Anything discussed here is not legal advice.", or "This is general guidance and not legal advice."',
+  'Important rule: mark Legal Disclaimer as present if the intent of either statement is conveyed, even if the exact wording varies.',
+  'Return the strongest supporting segment text and timestamp as evidence.'
+].join(' ')
+
+function buildPassOutput({ timestamp, text, reason, decisionSource, llmResult }) {
   return {
     parameter: 'Legal Disclaimer',
     disclaimer_detected: true,
     score: 1,
     status: 'PASS',
     disclaimer_timestamp: timestamp,
-    disclaimer_text: text
+    disclaimer_text: text,
+    reason,
+    decision_source: decisionSource,
+    ml_detected: Boolean(llmResult?.detected),
+    ml_timestamp: llmResult?.timestamp ?? null,
+    ml_evidence_text: llmResult?.text ?? null,
+    ml_reason: llmResult?.reason ?? null
   }
 }
 
-function buildFailOutput() {
+function buildFailOutput({ reason, llmResult } = {}) {
   return {
     parameter: 'Legal Disclaimer',
     disclaimer_detected: false,
     score: 0,
     status: 'FAIL',
-    reason: 'No legal disclaimer provided by the CSM in the transcript.'
+    reason: reason ?? 'No legal disclaimer provided by the CSM in the transcript.',
+    decision_source: llmResult?.detected ? 'llm-negative' : 'rule-negative',
+    ml_detected: Boolean(llmResult?.detected),
+    ml_timestamp: llmResult?.timestamp ?? null,
+    ml_evidence_text: llmResult?.text ?? null,
+    ml_reason: llmResult?.reason ?? null
   }
 }
 
@@ -206,6 +230,12 @@ export async function evaluateLegalDisclamer(transcriptPayload) {
     return buildFailOutput()
   }
 
+  const aiFallback = await runOpenAiIntentFallback({
+    parameterName: 'Legal Disclaimer Detection',
+    instructions: LEGAL_DISCLAIMER_LLM_INSTRUCTIONS,
+    segments: csmSegments
+  })
+
   const repositoryPhrases = await loadDictionaryPhrases([
     'legal_disclaimer_output.json',
     'LegalDisclaimer.json'
@@ -215,23 +245,32 @@ export async function evaluateLegalDisclamer(transcriptPayload) {
   if (repositoryMatch.matched) {
     return buildPassOutput({
       timestamp: repositoryMatch.timestamp,
-      text: repositoryMatch.text
+      text: repositoryMatch.text,
+      reason:
+        aiFallback?.detected && aiFallback.reason
+          ? `Rule-based detection found a legal disclaimer in the CSM transcript. ML confirmation: ${aiFallback.reason}`
+          : 'Rule-based detection found a legal disclaimer in the CSM transcript.',
+      decisionSource: aiFallback?.detected ? 'rule+llm' : 'rule',
+      llmResult: aiFallback
     })
   }
 
-  const aiFallback = await runOpenAiIntentFallback({
-    parameterName: 'Legal Disclaimer Detection',
-    instructions:
-      'Decide whether the CSM provides a legal disclaimer in these segments. A valid disclaimer means the CSM communicates they are not attorneys or that the discussion is not legal advice.',
-    segments: csmSegments
-  })
-
-  if (aiFallback?.detected && hasLegalLimitationIntent(aiFallback.text ?? '')) {
+  if (aiFallback?.detected) {
     return buildPassOutput({
       timestamp: aiFallback.timestamp,
-      text: aiFallback.text
+      text: aiFallback.text,
+      reason:
+        aiFallback.reason ||
+        'ML detection identified a valid legal disclaimer in the CSM transcript.',
+      decisionSource: 'llm',
+      llmResult: aiFallback
     })
   }
 
-  return buildFailOutput()
+  return buildFailOutput({
+    reason:
+      aiFallback?.reason ||
+      'No legal disclaimer was detected by rule-based checks or ML evaluation.',
+    llmResult: aiFallback
+  })
 }
