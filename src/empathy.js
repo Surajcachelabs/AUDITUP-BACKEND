@@ -69,6 +69,72 @@ const NEGATIVE_PATTERNS = [
   'not possible'
 ]
 
+const UNDERSTANDING_PATTERNS = [
+  'i understand',
+  'i completely understand',
+  'i can understand',
+  'i get that',
+  'i get it',
+  'i hear you',
+  'i hear your',
+  'i can see why',
+  'i can imagine'
+]
+
+const ACKNOWLEDGEMENT_PATTERNS = [
+  'your concern',
+  'your frustration',
+  'your inconvenience',
+  'your situation',
+  'i get that',
+  'i know this is',
+  'i know it can be',
+  'this is frustrating',
+  'that sounds stressful',
+  'that must be concerning',
+  'that must be difficult',
+  'i hear your concern',
+  'i hear your frustration'
+]
+
+const EMPATHETIC_PHRASE_PATTERNS = [
+  'i understand',
+  'i am sorry',
+  'i m sorry',
+  'im sorry',
+  'sorry for the inconvenience',
+  'sorry about that',
+  'i apologize',
+  'i appreciate your patience',
+  'thank you for sharing',
+  'your concern is valid',
+  'we are here to help',
+  'i m here to help',
+  'i am here to help'
+]
+
+const SUPPORT_ACTION_PATTERNS = [
+  'i will check',
+  'i ll check',
+  'i will get that checked',
+  'i ll get that checked',
+  'i will do that',
+  'i ll do that',
+  'i will assist',
+  'i ll assist',
+  'i can assist',
+  'i will remind you',
+  'i ll remind you',
+  'i will connect you',
+  'i ll connect you',
+  'i will help',
+  'i ll help',
+  'let me check',
+  'let me see what i can do',
+  'i will share my screen',
+  'i ll share my screen'
+]
+
 let cachedLexicon = null
 
 function parseEmpathyEntryScore(entry) {
@@ -224,34 +290,140 @@ function selectDominantBand(counters) {
   }
 }
 
+function collectMatchedPhrases(segments, patterns) {
+  const matches = new Set()
+
+  for (const segment of segments) {
+    const normalized = normalizeText(segment.text)
+    for (const phrase of patterns) {
+      if (normalized.includes(phrase)) {
+        matches.add(phrase)
+      }
+    }
+  }
+
+  return matches
+}
+
+function segmentHasAnyPattern(normalizedSegment, patterns) {
+  return patterns.some((phrase) => normalizedSegment.includes(phrase))
+}
+
+function analyzeEmpathyValidation(segments) {
+  const understandingMatches = collectMatchedPhrases(segments, UNDERSTANDING_PATTERNS)
+  const acknowledgementMatches = collectMatchedPhrases(segments, ACKNOWLEDGEMENT_PATTERNS)
+  const empatheticPhraseMatches = collectMatchedPhrases(segments, EMPATHETIC_PHRASE_PATTERNS)
+  const supportActionMatches = collectMatchedPhrases(segments, SUPPORT_ACTION_PATTERNS)
+
+  let signalSegmentCount = 0
+  let fullyQualifiedSegmentCount = 0
+  let supportActionSegmentCount = 0
+
+  for (const segment of segments) {
+    const normalized = normalizeText(segment.text)
+    const hasUnderstanding = segmentHasAnyPattern(normalized, UNDERSTANDING_PATTERNS)
+    const hasAcknowledgement = segmentHasAnyPattern(normalized, ACKNOWLEDGEMENT_PATTERNS)
+    const hasEmpatheticPhrase = segmentHasAnyPattern(normalized, EMPATHETIC_PHRASE_PATTERNS)
+    const hasSupportAction = segmentHasAnyPattern(normalized, SUPPORT_ACTION_PATTERNS)
+
+    if (hasUnderstanding || hasAcknowledgement || hasEmpatheticPhrase || hasSupportAction) {
+      signalSegmentCount += 1
+    }
+
+    if (hasSupportAction) {
+      supportActionSegmentCount += 1
+    }
+
+    if ((hasUnderstanding || hasAcknowledgement) && (hasEmpatheticPhrase || hasSupportAction)) {
+      fullyQualifiedSegmentCount += 1
+    }
+  }
+
+  const understandingCount = understandingMatches.size
+  const acknowledgementCount = acknowledgementMatches.size
+  const empatheticPhraseCount = empatheticPhraseMatches.size
+  const supportActionCount = supportActionMatches.size
+  const coreSignalCount = understandingCount + acknowledgementCount + empatheticPhraseCount
+  const weightedScore =
+    understandingCount * 2 +
+    acknowledgementCount * 2 +
+    empatheticPhraseCount * 2 +
+    supportActionCount
+
+  let recommendedBand = 0
+
+  if (coreSignalCount === 0) {
+    if (supportActionCount >= 2 && signalSegmentCount >= 2) {
+      recommendedBand = 1
+    }
+  } else if (weightedScore >= 10 && fullyQualifiedSegmentCount >= 2 && signalSegmentCount >= 2) {
+    recommendedBand = 3
+  } else if (weightedScore >= 5 && signalSegmentCount >= 2) {
+    recommendedBand = 2
+  } else {
+    recommendedBand = 1
+  }
+
+  return {
+    hasUnderstanding: understandingCount > 0,
+    hasAcknowledgement: acknowledgementCount > 0,
+    hasEmpatheticPhrases: empatheticPhraseCount > 0,
+    hasSupportActions: supportActionCount > 0,
+    understandingCount,
+    acknowledgementCount,
+    empatheticPhraseCount,
+    supportActionCount,
+    coreSignalCount,
+    weightedScore,
+    recommendedBand,
+    signalSegmentCount,
+    supportActionSegmentCount,
+    fullyQualifiedSegmentCount,
+    understandingMatches,
+    acknowledgementMatches,
+    empatheticPhraseMatches,
+    supportActionMatches,
+    hasCoreSignal: coreSignalCount > 0
+  }
+}
+
 function buildReason({
-  fromSentimentOnly,
   selectedBand,
   counters,
-  maxCount,
   sentiment,
-  matchedKeywords
+  matchedKeywords,
+  validation,
+  lexiconBand,
+  lexiconHits,
+  scoringSource
 }) {
   const counterSummary = `Category counters -> C0:${counters[0]}, C1:${counters[1]}, C2:${counters[2]}, C3:${counters[3]}.`
   const sentimentSummary = `Sentiment signals -> positive:${sentiment.positiveHits}, negative:${sentiment.negativeHits}, net:${sentiment.sentimentScore}, suggested_band:${sentiment.band}.`
+  const validationSummary =
+    `Empathy signals -> acknowledgement:${validation.acknowledgementCount}, understanding:${validation.understandingCount}, empathetic_phrases:${validation.empatheticPhraseCount}, support_actions:${validation.supportActionCount}, weighted_score:${validation.weightedScore}.`
+  const consistencySummary =
+    `Consistency -> signal_segments:${validation.signalSegmentCount}, support_segments:${validation.supportActionSegmentCount}, qualified_segments:${validation.fullyQualifiedSegmentCount}.`
 
-  if (fromSentimentOnly) {
+  if (selectedBand === 0) {
     return [
-      'No direct empathy lexicon token matches were found in the transcript, so score falls back to sentiment analysis.',
+      'No reliable empathy evidence was found beyond neutral/procedural handling.',
+      validationSummary,
+      consistencySummary,
+      counterSummary,
       sentimentSummary,
-      `Final empathy score selected: ${selectedBand}.`
+      'Final empathy score selected: 0.'
     ].join(' ')
   }
 
-  const topKeywords = [...matchedKeywords[selectedBand]].slice(0, 8).join(', ')
-  const tieAwareSummary =
-    maxCount > 0
-      ? `Dominant category selected from counters: ${selectedBand} (highest hit count ${maxCount}; ties resolved toward higher category).`
-      : `All counters are zero; selected category ${selectedBand} by priority rule.`
+  const representativeBand = lexiconHits > 0 ? lexiconBand : selectedBand
+  const topKeywords = [...(matchedKeywords[representativeBand] ?? [])].slice(0, 8).join(', ')
+  const sourceSummary = `Scoring source: ${scoringSource}.`
 
   return [
     counterSummary,
-    tieAwareSummary,
+    validationSummary,
+    consistencySummary,
+    sourceSummary,
     topKeywords ? `Representative matched tokens for selected category: ${topKeywords}.` : '',
     sentimentSummary
   ]
@@ -277,6 +449,23 @@ function buildFailOutput(reason) {
       net_score: 0,
       suggested_band: 1
     },
+    empathy_validation: {
+      passed: false,
+      has_acknowledgement: false,
+      has_understanding: false,
+      has_empathetic_phrases: false,
+      has_support_actions: false,
+      acknowledgement_hits: 0,
+      understanding_hits: 0,
+      empathetic_phrase_hits: 0,
+      support_action_hits: 0,
+      core_signal_hits: 0,
+      weighted_score: 0,
+      recommended_band: 0,
+      signal_segments: 0,
+      support_action_segments: 0,
+      fully_qualified_segments: 0
+    },
     reason
   }
 }
@@ -298,20 +487,63 @@ export async function evaluateEmpathy(transcriptPayload) {
 
   const { counters, matchedKeywords } = countEmpathyCategoryHits(csmSegments, levelKeywordSets)
   const sentiment = analyzeSentiment(csmSegments)
+  const validation = analyzeEmpathyValidation(csmSegments)
   const totalCounterHits = counters[0] + counters[1] + counters[2] + counters[3]
+  const lexiconSelection = totalCounterHits > 0 ? selectDominantBand(counters) : null
+  const lexiconBand = lexiconSelection?.selectedBand ?? 0
+  const lexiconMaxCount = lexiconSelection?.maxCount ?? 0
 
-  let selectedBand
-  let maxCount
-  let fromSentimentOnly = false
+  let selectedBand = validation.recommendedBand
+  let scoringSource = 'weighted'
 
-  if (totalCounterHits === 0) {
-    selectedBand = sentiment.band
-    maxCount = 0
-    fromSentimentOnly = true
-  } else {
-    const selection = selectDominantBand(counters)
-    selectedBand = selection.selectedBand
-    maxCount = selection.maxCount
+  if (totalCounterHits > 0) {
+    if (validation.hasCoreSignal && lexiconBand >= 2 && lexiconMaxCount >= 2) {
+      selectedBand = Math.min(3, selectedBand + 1)
+    }
+
+    if (validation.hasCoreSignal && lexiconBand === 0 && validation.supportActionCount === 0) {
+      selectedBand = Math.max(0, selectedBand - 1)
+    }
+
+    scoringSource = 'weighted+lexicon'
+  }
+
+  if (
+    sentiment.negativeHits > 0 &&
+    validation.acknowledgementCount === 0 &&
+    validation.understandingCount <= 1 &&
+    validation.empatheticPhraseCount <= 1
+  ) {
+    selectedBand = Math.max(0, selectedBand - 1)
+  }
+
+  if (sentiment.negativeHits >= sentiment.positiveHits + 2) {
+    selectedBand = Math.min(selectedBand, 1)
+  }
+
+  if (
+    validation.hasCoreSignal &&
+    validation.signalSegmentCount >= 3 &&
+    validation.supportActionCount >= 2 &&
+    selectedBand === 1
+  ) {
+    selectedBand = 2
+  }
+
+  if (selectedBand >= 3 && validation.empatheticPhraseCount === 0) {
+    selectedBand = 2
+  }
+
+  if (
+    selectedBand >= 3 &&
+    validation.empatheticPhraseCount < 2 &&
+    validation.fullyQualifiedSegmentCount < 2
+  ) {
+    selectedBand = 2
+  }
+
+  if (!validation.hasCoreSignal && validation.supportActionCount < 2) {
+    selectedBand = 0
   }
 
   return {
@@ -331,13 +563,36 @@ export async function evaluateEmpathy(transcriptPayload) {
       net_score: sentiment.sentimentScore,
       suggested_band: sentiment.band
     },
+    empathy_validation: {
+      passed: selectedBand > 0,
+      has_acknowledgement: validation.hasAcknowledgement,
+      has_understanding: validation.hasUnderstanding,
+      has_empathetic_phrases: validation.hasEmpatheticPhrases,
+      has_support_actions: validation.hasSupportActions,
+      acknowledgement_hits: validation.acknowledgementCount,
+      understanding_hits: validation.understandingCount,
+      empathetic_phrase_hits: validation.empatheticPhraseCount,
+      support_action_hits: validation.supportActionCount,
+      core_signal_hits: validation.coreSignalCount,
+      weighted_score: validation.weightedScore,
+      recommended_band: validation.recommendedBand,
+      signal_segments: validation.signalSegmentCount,
+      support_action_segments: validation.supportActionSegmentCount,
+      fully_qualified_segments: validation.fullyQualifiedSegmentCount,
+      matched_acknowledgement_phrases: [...validation.acknowledgementMatches],
+      matched_understanding_phrases: [...validation.understandingMatches],
+      matched_empathetic_phrases: [...validation.empatheticPhraseMatches],
+      matched_support_action_phrases: [...validation.supportActionMatches]
+    },
     reason: buildReason({
-      fromSentimentOnly,
       selectedBand,
       counters,
-      maxCount,
       sentiment,
-      matchedKeywords
+      matchedKeywords,
+      validation,
+      lexiconBand,
+      lexiconHits: totalCounterHits,
+      scoringSource
     })
   }
 }

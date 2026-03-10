@@ -20,7 +20,6 @@ const CSM_TEAM_MEMBER_NAMES = [
   'Garv Aggarwal',
   'Ishika Aggarwal',
   'Rozanne Khan',
-  'Mohit Bajpai',
   'Harshita Rajoria'
 ]
 

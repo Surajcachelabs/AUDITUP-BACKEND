@@ -1,410 +1,484 @@
-import {
-  extractTranscriptSegments,
-  getTotalCallDurationSeconds,
-  isCsmSpeaker,
-  loadDictionaryPhrases,
-  normalizeText
-} from './shared.js'
-import { runOpenAiIntentFallback } from './openAiFallback.js'
+﻿import { extractTranscriptSegments, isCsmSpeaker, normalizeText } from './shared.js'
+import { runOpenAiStructuredSummary } from './openAiFallback.js'
 
-const SUMMARY_INTENT_PATTERNS = [
-  /\bsummari[sz]e\b/i,
-  /\bsummary\b/i,
-  /\bto\s+summari[sz]e\b/i,
-  /\bto\s+recap\b/i,
-  /\blet\s+me\s+recap\b/i,
-  /\bin\s+summary\b/i,
-  /\bjust\s+to\s+recap\b/i,
-  /here\s+is\s+what\s+we\s+discussed\s+today/i,
-  /these\s+are\s+the\s+points\s+we\s+covered/i,
-  /let\s+me\s+quickly\s+go\s+over\s+everything\s+again/i,
-  /these\s+are\s+the\s+action\s+items/i,
-  /these\s+are\s+the\s+next\s+steps/i
+const ISSUE_CUES = [
+  'issue',
+  'problem',
+  'concern',
+  'stuck',
+  'unable',
+  'not able',
+  'error',
+  'delay',
+  'pending',
+  'missing',
+  'clarify',
+  'question',
+  'doubt',
+  'help'
 ]
 
-const SUMMARY_LLM_INSTRUCTIONS = [
-  'Determine whether Summarization is present in these CSM segments from the final 30% of the call.',
-  'Definition: Summarization is present when the speaker indicates an intent to recap, summarize, or list key points discussed during the conversation.',
-  'Mark detected true if the transcript contains explicit keywords such as "summarize", "summary", "to summarize", "to recap", "let me recap", "in summary", or "just to recap".',
-  'Also mark detected true for intent-based recap statements such as "Here is what we discussed today.", "These are the points we covered.", "Let me quickly go over everything again.", "These are the action items.", or "These are the next steps."',
-  'Important rule: mark Summarization as present even if the detailed summary points are incomplete or missing, as long as the intent to summarize or recap is clearly stated.',
-  'Return the strongest supporting segment text and timestamp as evidence.'
-].join(' ')
-
-const STOP_WORDS = new Set([
-  'the',
-  'a',
-  'an',
-  'and',
-  'or',
-  'to',
-  'of',
-  'in',
-  'for',
-  'on',
-  'with',
-  'we',
-  'you',
-  'your',
-  'our',
-  'is',
-  'are',
-  'was',
-  'were',
-  'be',
-  'this',
-  'that',
-  'it',
-  'as',
-  'at',
-  'from',
-  'will',
-  'today',
-  'just',
-  'let',
-  'me',
-  'so'
-])
-
-const INTENT_DEFINITIONS = [
-  {
-    name: 'Profile review discussion',
-    keywords: ['profile', 'review', 'feedback', 'draft', 'assessment']
-  },
-  {
-    name: 'Documentation clarification',
-    keywords: ['document', 'documents', 'evidence', 'paperwork', 'files', 'clarify']
-  },
-  {
-    name: 'Timeline inquiry',
-    keywords: ['timeline', 'days', 'week', 'weeks', 'deadline', 'when', 'date']
-  },
-  {
-    name: 'Process explanation',
-    keywords: ['process', 'steps', 'workflow', 'procedure', 'phase', 'phases']
-  }
+const ACTION_CUES = [
+  'i will',
+  'we will',
+  'let me',
+  'i can',
+  'we can',
+  'review',
+  'check',
+  'share',
+  'send',
+  'update',
+  'guide',
+  'explain',
+  'provide',
+  'schedule',
+  'follow up',
+  'create',
+  'submit',
+  'raise'
 ]
 
-function buildPassOutput({ timestamp, text, reason, decisionSource, llmResult }) {
-  return {
-    parameter: 'Call Summarisation',
-    summary_detected: true,
-    score: 1,
-    status: 'PASS',
-    summary_timestamp: timestamp,
-    summary_text: text,
-    reason,
-    decision_source: decisionSource,
-    ml_detected: Boolean(llmResult?.detected),
-    ml_timestamp: llmResult?.timestamp ?? null,
-    ml_evidence_text: llmResult?.text ?? null,
-    ml_reason: llmResult?.reason ?? null
-  }
+const RESOLUTION_CUES = [
+  'next step',
+  'next steps',
+  'action item',
+  'timeline',
+  'eta',
+  'plan',
+  'proceed',
+  'moving forward',
+  'follow up',
+  'within',
+  'by ',
+  'reconnect',
+  'phase'
+]
+
+const OUTCOME_CUES = [
+  'agreed',
+  'confirmed',
+  'resolved',
+  'completed',
+  'closed',
+  'on track',
+  'clear direction',
+  'understood',
+  'finalized',
+  'aligned',
+  'will reconnect',
+  'send a follow up email'
+]
+
+const CLOSING_ONLY_CUES = [
+  'thank you for your time',
+  'thank you',
+  'take care',
+  'goodbye',
+  'have a great day',
+  'wishing you',
+  'thanks for joining',
+  'wonderful evening'
+]
+
+function containsAny(text, cues) {
+  return cues.some((cue) => text.includes(cue))
 }
 
-function buildFailOutput({ reason, llmResult } = {}) {
-  return {
-    parameter: 'Call Summarisation',
-    summary_detected: false,
-    score: 0,
-    status: 'FAIL',
-    reason: reason ?? 'No valid summary detected in the final 30% of the call.',
-    decision_source: llmResult?.detected ? 'llm-negative' : 'rule-negative',
-    ml_detected: Boolean(llmResult?.detected),
-    ml_timestamp: llmResult?.timestamp ?? null,
-    ml_evidence_text: llmResult?.text ?? null,
-    ml_reason: llmResult?.reason ?? null
-  }
-}
+function countCueMatches(text, cues) {
+  let count = 0
 
-function hasExplicitSummaryIntent(text) {
-  return SUMMARY_INTENT_PATTERNS.some((pattern) => pattern.test(text))
-}
-
-function buildNgramSet(text, n = 2) {
-  const parts = normalizeText(text).split(' ').filter(Boolean)
-
-  if (parts.length < n) {
-    return new Set(parts)
-  }
-
-  const ngrams = new Set()
-  for (let index = 0; index <= parts.length - n; index += 1) {
-    ngrams.add(parts.slice(index, index + n).join(' '))
-  }
-
-  return ngrams
-}
-
-function jaccardSimilarity(left, right) {
-  const leftSet = buildNgramSet(left, 2)
-  const rightSet = buildNgramSet(right, 2)
-
-  if (!leftSet.size || !rightSet.size) {
-    return 0
-  }
-
-  let intersection = 0
-  for (const item of leftSet) {
-    if (rightSet.has(item)) {
-      intersection += 1
+  for (const cue of cues) {
+    if (text.includes(cue)) {
+      count += 1
     }
   }
 
-  const union = leftSet.size + rightSet.size - intersection
-  return union === 0 ? 0 : intersection / union
+  return count
 }
 
-function buildTokenSet(value) {
-  return new Set(normalizeText(value).split(' ').filter(Boolean))
+function countWords(text) {
+  return normalizeText(text).split(' ').filter(Boolean).length
 }
 
-function computePhraseCoverage(segmentText, phraseText) {
-  const segmentTokens = buildTokenSet(segmentText)
-  const phraseTokens = buildTokenSet(phraseText)
+function compactText(text, maxLength = 300) {
+  const collapsed = String(text ?? '').replace(/\s+/g, ' ').trim()
 
-  if (phraseTokens.size === 0 || segmentTokens.size === 0) {
-    return 0
+  if (collapsed.length <= maxLength) {
+    return collapsed
   }
 
-  let overlapCount = 0
-  for (const token of phraseTokens) {
-    if (segmentTokens.has(token)) {
-      overlapCount += 1
+  return `${collapsed.slice(0, Math.max(0, maxLength - 3)).trim()}...`
+}
+
+function isMeaningfulSegment(text) {
+  return countWords(text) >= 4
+}
+
+function isClosingOnlySegment(normalizedText) {
+  if (!containsAny(normalizedText, CLOSING_ONLY_CUES)) {
+    return false
+  }
+
+  const hasSubstantiveSignal =
+    containsAny(normalizedText, ISSUE_CUES) ||
+    containsAny(normalizedText, ACTION_CUES) ||
+    containsAny(normalizedText, RESOLUTION_CUES) ||
+    containsAny(normalizedText, OUTCOME_CUES)
+
+  return !hasSubstantiveSignal
+}
+
+function buildEnrichedSegments(segments) {
+  const total = Math.max(1, segments.length - 1)
+
+  return segments.map((segment, index) => {
+    const normalizedText = normalizeText(segment.text)
+
+    return {
+      ...segment,
+      normalizedText,
+      isCsm: isCsmSpeaker(segment.speaker),
+      relativePosition: index / total
     }
-  }
-
-  return overlapCount / phraseTokens.size
+  })
 }
 
-function detectCallIntent(segments) {
-  const joinedText = normalizeText(segments.map((segment) => segment.text).join(' '))
-
-  let bestIntent = null
-
-  for (const intent of INTENT_DEFINITIONS) {
-    let score = 0
-    for (const keyword of intent.keywords) {
-      if (joinedText.includes(keyword)) {
-        score += 1
-      }
-    }
-
-    if (!bestIntent || score > bestIntent.score) {
-      bestIntent = {
-        name: intent.name,
-        keywords: intent.keywords,
-        score
-      }
-    }
-  }
-
-  if (!bestIntent || bestIntent.score === 0) {
-    return null
-  }
-
-  return bestIntent
-}
-
-function buildDiscussionKeywordSet(segments) {
-  const tokenFrequency = new Map()
+function dedupeByNormalizedText(segments) {
+  const seen = new Set()
+  const deduped = []
 
   for (const segment of segments) {
-    const tokens = normalizeText(segment.text).split(' ').filter(Boolean)
-
-    for (const token of tokens) {
-      if (token.length < 3 || STOP_WORDS.has(token)) {
-        continue
-      }
-
-      tokenFrequency.set(token, (tokenFrequency.get(token) ?? 0) + 1)
-    }
-  }
-
-  const sorted = [...tokenFrequency.entries()].sort((a, b) => b[1] - a[1])
-  return new Set(sorted.slice(0, 20).map(([token]) => token))
-}
-
-function isIntentAligned(summaryText, intent, discussionKeywordSet) {
-  const normalizedSummary = normalizeText(summaryText)
-
-  if (intent) {
-    const intentKeywordMatch = intent.keywords.some((keyword) => normalizedSummary.includes(keyword))
-    if (intentKeywordMatch) {
-      return true
-    }
-  }
-
-  const summaryTokens = normalizeText(summaryText).split(' ').filter(Boolean)
-  let overlapCount = 0
-
-  for (const token of summaryTokens) {
-    if (discussionKeywordSet.has(token)) {
-      overlapCount += 1
-    }
-  }
-
-  return overlapCount >= 2
-}
-
-function selectBestSummaryCandidate(candidates, intent, discussionKeywordSet) {
-  if (candidates.length === 0) {
-    return null
-  }
-
-  const explicitIntentCandidates = candidates.filter((candidate) => candidate.matchType === 'explicit-intent')
-
-  if (explicitIntentCandidates.length > 0) {
-    return explicitIntentCandidates.reduce((latest, current) =>
-      current.timestampSeconds > latest.timestampSeconds ? current : latest
-    )
-  }
-
-  const intentAligned = candidates.filter((candidate) =>
-    isIntentAligned(candidate.text, intent, discussionKeywordSet)
-  )
-
-  if (intentAligned.length === 0) {
-    return null
-  }
-
-  return intentAligned.reduce((latest, current) =>
-    current.timestampSeconds > latest.timestampSeconds ? current : latest
-  )
-}
-
-function findRepositoryOrFlexibleCandidates(segments, repositoryPhrases) {
-  const phraseRecords = repositoryPhrases
-    .map((phrase) => {
-      const normalized = normalizeText(phrase)
-      return {
-        phrase,
-        normalized,
-        tokenCount: normalized.split(' ').filter(Boolean).length
-      }
-    })
-    .filter((entry) => entry.normalized)
-
-  const candidates = []
-
-  for (const segment of segments) {
-    if (hasExplicitSummaryIntent(segment.text)) {
-      candidates.push({
-        ...segment,
-        matchType: 'explicit-intent'
-      })
+    const key = segment.normalizedText
+    if (!key || seen.has(key)) {
       continue
     }
 
-    const normalizedSegment = normalizeText(segment.text)
+    seen.add(key)
+    deduped.push(segment)
+  }
 
-    for (const phraseRecord of phraseRecords) {
-      const strictMatch =
-        normalizedSegment.includes(phraseRecord.normalized) ||
-        (phraseRecord.tokenCount === 1 &&
-          normalizedSegment.split(' ').includes(phraseRecord.normalized))
+  return deduped
+}
 
-      if (strictMatch) {
-        candidates.push({
-          ...segment,
-          matchType: 'repository'
-        })
-        break
-      }
+function joinSegmentTexts(segments, maxItems = 2) {
+  const selected = dedupeByNormalizedText(segments)
+    .slice(0, maxItems)
+    .map((segment) => compactText(segment.text, 220))
+    .filter(Boolean)
 
-      const phraseCoverage = computePhraseCoverage(normalizedSegment, phraseRecord.normalized)
-      const ngramScore = jaccardSimilarity(normalizedSegment, phraseRecord.normalized)
-      const score = Math.max(phraseCoverage, ngramScore)
-      const threshold = phraseRecord.tokenCount <= 2 ? 0.8 : phraseRecord.tokenCount <= 5 ? 0.7 : 0.6
+  return selected.join(' | ')
+}
 
-      if (score >= threshold) {
-        candidates.push({
-          ...segment,
-          matchType: 'flexible'
-        })
-        break
-      }
+function selectCustomerIssue(enrichedSegments) {
+  const direct = enrichedSegments.filter(
+    (segment) =>
+      !segment.isCsm &&
+      isMeaningfulSegment(segment.text) &&
+      !isClosingOnlySegment(segment.normalizedText) &&
+      (containsAny(segment.normalizedText, ISSUE_CUES) || segment.text.includes('?'))
+  )
+
+  if (direct.length > 0) {
+    return {
+      text: joinSegmentTexts(direct, 2),
+      timestamp: direct[0].timestamp,
+      sourcedFromTranscript: true
     }
   }
 
-  return candidates
+  const fallback = enrichedSegments.filter(
+    (segment) => !segment.isCsm && isMeaningfulSegment(segment.text)
+  )
+
+  if (fallback.length > 0) {
+    return {
+      text: joinSegmentTexts(fallback, 1),
+      timestamp: fallback[0].timestamp,
+      sourcedFromTranscript: true
+    }
+  }
+
+  return {
+    text: 'Client concern was not explicitly articulated in a clear standalone statement.',
+    timestamp: null,
+    sourcedFromTranscript: false
+  }
+}
+
+function selectCsmActions(enrichedSegments) {
+  const candidates = enrichedSegments
+    .filter(
+      (segment) =>
+        segment.isCsm &&
+        isMeaningfulSegment(segment.text) &&
+        !isClosingOnlySegment(segment.normalizedText)
+    )
+    .map((segment) => ({
+      ...segment,
+      actionScore:
+        countCueMatches(segment.normalizedText, ACTION_CUES) +
+        (containsAny(segment.normalizedText, RESOLUTION_CUES) ? 1 : 0)
+    }))
+    .filter((segment) => segment.actionScore > 0)
+
+  if (candidates.length > 0) {
+    const ranked = [...candidates].sort((left, right) => {
+      if (right.actionScore !== left.actionScore) {
+        return right.actionScore - left.actionScore
+      }
+
+      return left.timestampSeconds - right.timestampSeconds
+    })
+
+    return {
+      text: joinSegmentTexts(ranked, 2),
+      timestamp: ranked[0].timestamp,
+      sourcedFromTranscript: true
+    }
+  }
+
+  return {
+    text: 'CSM actions were discussed but no clear action-oriented statement was detected.',
+    timestamp: null,
+    sourcedFromTranscript: false
+  }
+}
+
+function selectResolutionNextSteps(enrichedSegments) {
+  const hasTimelineReference = (normalizedText) =>
+    /\b\d+\s*(day|days|week|weeks|month|months|hour|hours)\b/.test(normalizedText)
+
+  const candidates = enrichedSegments
+    .filter(
+      (segment) => isMeaningfulSegment(segment.text) && !isClosingOnlySegment(segment.normalizedText)
+    )
+    .map((segment) => ({
+      ...segment,
+      resolutionScore:
+        countCueMatches(segment.normalizedText, RESOLUTION_CUES) +
+        (hasTimelineReference(segment.normalizedText) ? 1 : 0) +
+        (segment.relativePosition >= 0.45 ? 1 : 0)
+    }))
+    .filter((segment) => segment.resolutionScore > 0)
+
+  if (candidates.length > 0) {
+    const ranked = [...candidates].sort((left, right) => {
+      if (right.resolutionScore !== left.resolutionScore) {
+        return right.resolutionScore - left.resolutionScore
+      }
+
+      return right.timestampSeconds - left.timestampSeconds
+    })
+
+    return {
+      text: joinSegmentTexts(ranked, 2),
+      timestamp: ranked[0].timestamp,
+      sourcedFromTranscript: true
+    }
+  }
+
+  return {
+    text: 'Resolution path or next steps were not clearly defined in the transcript.',
+    timestamp: null,
+    sourcedFromTranscript: false
+  }
+}
+
+function selectFinalOutcome(enrichedSegments) {
+  const lateSegments = enrichedSegments.filter((segment) => segment.relativePosition >= 0.7)
+
+  const outcomeCandidates = lateSegments
+    .filter(
+      (segment) => isMeaningfulSegment(segment.text) && !isClosingOnlySegment(segment.normalizedText)
+    )
+    .map((segment) => ({
+      ...segment,
+      outcomeScore:
+        countCueMatches(segment.normalizedText, OUTCOME_CUES) +
+        countCueMatches(segment.normalizedText, RESOLUTION_CUES) +
+        (segment.isCsm ? 1 : 0)
+    }))
+    .filter((segment) => segment.outcomeScore > 0)
+
+  if (outcomeCandidates.length > 0) {
+    const ranked = [...outcomeCandidates].sort((left, right) => {
+      if (right.outcomeScore !== left.outcomeScore) {
+        return right.outcomeScore - left.outcomeScore
+      }
+
+      return right.timestampSeconds - left.timestampSeconds
+    })
+
+    return {
+      text: joinSegmentTexts(ranked, 1),
+      timestamp: ranked[0].timestamp,
+      sourcedFromTranscript: true
+    }
+  }
+
+  const fallback = [...lateSegments].reverse().find(
+    (segment) => isMeaningfulSegment(segment.text) && !isClosingOnlySegment(segment.normalizedText)
+  )
+
+  if (fallback) {
+    return {
+      text: compactText(fallback.text, 220),
+      timestamp: fallback.timestamp,
+      sourcedFromTranscript: true
+    }
+  }
+
+  return {
+    text: 'Final outcome was not explicitly stated in the conversation.',
+    timestamp: null,
+    sourcedFromTranscript: false
+  }
+}
+
+function buildHeuristicSummary(segments) {
+  const enrichedSegments = buildEnrichedSegments(segments)
+
+  const customerIssue = selectCustomerIssue(enrichedSegments)
+  const csmActions = selectCsmActions(enrichedSegments)
+  const resolutionNextSteps = selectResolutionNextSteps(enrichedSegments)
+  const finalOutcome = selectFinalOutcome(enrichedSegments)
+
+  return {
+    customerIssue,
+    csmActions,
+    resolutionNextSteps,
+    finalOutcome
+  }
+}
+
+function buildOverallSummary({ customerIssue, csmActions, resolutionNextSteps, finalOutcome }) {
+  return [
+    `Customer issue/problem: ${customerIssue}`,
+    `Actions taken by CSM: ${csmActions}`,
+    `Resolution/next steps: ${resolutionNextSteps}`,
+    `Final outcome: ${finalOutcome}`
+  ].join(' ')
+}
+
+function pickSummaryTimestamp(sectionTimestamps) {
+  return (
+    sectionTimestamps.finalOutcome ||
+    sectionTimestamps.resolutionNextSteps ||
+    sectionTimestamps.csmActions ||
+    sectionTimestamps.customerIssue ||
+    null
+  )
+}
+
+function buildOutput({
+  customerIssue,
+  csmActions,
+  resolutionNextSteps,
+  finalOutcome,
+  sectionTimestamps,
+  fieldCoverage,
+  decisionSource,
+  mlSummary,
+  status
+}) {
+  const summaryText = buildOverallSummary({
+    customerIssue,
+    csmActions,
+    resolutionNextSteps,
+    finalOutcome
+  })
+
+  const summaryDetected = status === 'PASS'
+
+  const baseReason =
+    summaryDetected
+      ? `Full-transcript intent summary generated with ${fieldCoverage}/4 required fields captured.`
+      : `Summary is partial. Only ${fieldCoverage}/4 required fields were confidently captured from transcript context.`
+
+  const reason = mlSummary?.reason ? `${baseReason} ML refinement note: ${mlSummary.reason}` : baseReason
+
+  return {
+    parameter: 'Call Summarisation',
+    summary_detected: summaryDetected,
+    score: summaryDetected ? 1 : 0,
+    status,
+    summary_timestamp: pickSummaryTimestamp(sectionTimestamps),
+    summary_text: summaryText,
+    reason,
+    decision_source: decisionSource,
+    customer_issue: customerIssue,
+    csm_actions_taken: csmActions,
+    resolution_or_next_steps: resolutionNextSteps,
+    final_outcome: finalOutcome,
+    summary_field_coverage: fieldCoverage,
+    ml_detected: Boolean(mlSummary),
+    ml_timestamp: null,
+    ml_evidence_text: mlSummary?.overallSummary ?? null,
+    ml_reason: mlSummary?.reason ?? null
+  }
 }
 
 export async function evaluateSummery(transcriptPayload) {
   const segments = extractTranscriptSegments(transcriptPayload)
 
   if (segments.length === 0) {
-    return buildFailOutput()
+    return {
+      parameter: 'Call Summarisation',
+      summary_detected: false,
+      score: 0,
+      status: 'FAIL',
+      summary_timestamp: null,
+      summary_text: null,
+      reason: 'No transcript segments were detected, so full-context summarisation could not be generated.',
+      decision_source: 'none',
+      customer_issue: null,
+      csm_actions_taken: null,
+      resolution_or_next_steps: null,
+      final_outcome: null,
+      summary_field_coverage: 0,
+      ml_detected: false,
+      ml_timestamp: null,
+      ml_evidence_text: null,
+      ml_reason: null
+    }
   }
 
-  const totalCallDurationSeconds = getTotalCallDurationSeconds(segments)
-  const summaryWindowStartSeconds = totalCallDurationSeconds * 0.7
+  const heuristicSummary = buildHeuristicSummary(segments)
+  const mlSummary = await runOpenAiStructuredSummary({ segments })
 
-  const csmWindowSegments = segments.filter(
-    (segment) => isCsmSpeaker(segment.speaker) && segment.timestampSeconds >= summaryWindowStartSeconds
-  )
+  const customerIssue = mlSummary?.customerIssue ?? heuristicSummary.customerIssue.text
+  const csmActions = mlSummary?.csmActions ?? heuristicSummary.csmActions.text
+  const resolutionNextSteps =
+    mlSummary?.resolutionNextSteps ?? heuristicSummary.resolutionNextSteps.text
+  const finalOutcome = mlSummary?.finalOutcome ?? heuristicSummary.finalOutcome.text
 
-  if (csmWindowSegments.length === 0) {
-    return buildFailOutput()
+  const coverageFlags = {
+    customerIssue: Boolean(mlSummary?.customerIssue) || heuristicSummary.customerIssue.sourcedFromTranscript,
+    csmActions: Boolean(mlSummary?.csmActions) || heuristicSummary.csmActions.sourcedFromTranscript,
+    resolutionNextSteps:
+      Boolean(mlSummary?.resolutionNextSteps) ||
+      heuristicSummary.resolutionNextSteps.sourcedFromTranscript,
+    finalOutcome: Boolean(mlSummary?.finalOutcome) || heuristicSummary.finalOutcome.sourcedFromTranscript
   }
 
-  const discussionSegmentsBeforeWindow = segments.filter(
-    (segment) => segment.timestampSeconds < summaryWindowStartSeconds
-  )
-  const intentSourceSegments =
-    discussionSegmentsBeforeWindow.length > 0 ? discussionSegmentsBeforeWindow : segments
-  const detectedIntent = detectCallIntent(intentSourceSegments)
-  const discussionKeywordSet = buildDiscussionKeywordSet(intentSourceSegments)
+  const fieldCoverage = Object.values(coverageFlags).filter(Boolean).length
+  const status = fieldCoverage >= 3 ? 'PASS' : 'FAIL'
 
-  const repositoryPhrases = await loadDictionaryPhrases([
-    'summary_output.json',
-    'summarization_output.json'
-  ])
-  const repositoryOrFlexibleCandidates = findRepositoryOrFlexibleCandidates(
-    csmWindowSegments,
-    repositoryPhrases
-  )
-  const repositoryOrFlexibleMatch = selectBestSummaryCandidate(
-    repositoryOrFlexibleCandidates,
-    detectedIntent,
-    discussionKeywordSet
-  )
-
-  const aiFallback = await runOpenAiIntentFallback({
-    parameterName: 'Call Summarisation Detection',
-    instructions: SUMMARY_LLM_INSTRUCTIONS,
-    segments: csmWindowSegments
-  })
-
-  if (repositoryOrFlexibleMatch) {
-    return buildPassOutput({
-      timestamp: repositoryOrFlexibleMatch.timestamp,
-      text: repositoryOrFlexibleMatch.text,
-      reason:
-        aiFallback?.detected && aiFallback.reason
-          ? `Rule-based detection found summary intent in the final 30% of the call. ML confirmation: ${aiFallback.reason}`
-          : 'Rule-based detection found summary intent in the final 30% of the call.',
-      decisionSource: aiFallback?.detected ? 'rule+llm' : 'rule',
-      llmResult: aiFallback
-    })
-  }
-
-  if (aiFallback?.detected) {
-    return buildPassOutput({
-      timestamp: aiFallback.timestamp,
-      text: aiFallback.text,
-      reason:
-        aiFallback.reason ||
-        'ML detection identified clear recap or summary intent in the final 30% of the call.',
-      decisionSource: 'llm',
-      llmResult: aiFallback
-    })
-  }
-
-  return buildFailOutput({
-    reason:
-      aiFallback?.reason ||
-      'No valid summary detected in the final 30% of the call by rule-based checks or ML evaluation.',
-    llmResult: aiFallback
+  return buildOutput({
+    customerIssue,
+    csmActions,
+    resolutionNextSteps,
+    finalOutcome,
+    sectionTimestamps: {
+      customerIssue: heuristicSummary.customerIssue.timestamp,
+      csmActions: heuristicSummary.csmActions.timestamp,
+      resolutionNextSteps: heuristicSummary.resolutionNextSteps.timestamp,
+      finalOutcome: heuristicSummary.finalOutcome.timestamp
+    },
+    fieldCoverage,
+    decisionSource: mlSummary ? 'heuristic+llm' : 'heuristic',
+    mlSummary,
+    status
   })
 }
