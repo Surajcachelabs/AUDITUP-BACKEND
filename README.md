@@ -7,9 +7,9 @@ Transcript evaluator backend for 6 criteria scoring:
 3. Summery (`0` or `1`)
 4. Legal disclamer (`0` or `1`)
 5. Empathy (`0` to `3`)
-6. Slang severity (`0` to `5`, converted to subtraction value)
+6. Slang severity (`0` to `5`, mapped from average impact using bands: `15+ -> 0`, `10-14 -> 1`, `6-9 -> 2`, `3-5 -> 3`, `1-2 -> 4`, `0 -> 5`)
 
-Total score is out of `7` with slang severity deduction.
+Total score is out of `12`, where slang points are added to positive criteria score.
 
 ## Setup
 

@@ -9,7 +9,6 @@ import {
 
 const SLANG_DATA_PATH = path.join(process.cwd(), 'Json', 'slang_severity_data.json')
 const SECTION_SECONDS = 180
-const MAX_SLANG_SCORE = 5
 
 let cachedPhraseWeights = null
 
@@ -106,27 +105,27 @@ function toSectionLabel(startSeconds, endSeconds) {
 }
 
 function mapImpactToScore(averageImpactValue) {
-  if (averageImpactValue <= 0) {
-    return 5
+  if (averageImpactValue >= 15) {
+    return 0
   }
 
-  if (averageImpactValue <= 3) {
-    return 4
-  }
-
-  if (averageImpactValue <= 6) {
-    return 3
-  }
-
-  if (averageImpactValue <= 9) {
-    return 2
-  }
-
-  if (averageImpactValue <= 14) {
+  if (averageImpactValue >= 10) {
     return 1
   }
 
-  return 0
+  if (averageImpactValue >= 6) {
+    return 2
+  }
+
+  if (averageImpactValue >= 3) {
+    return 3
+  }
+
+  if (averageImpactValue >= 1) {
+    return 4
+  }
+
+  return 5
 }
 
 function buildFailOutput(reason) {
@@ -134,6 +133,7 @@ function buildFailOutput(reason) {
     parameter: 'Slang Severity',
     slang_score: 5,
     score: 5,
+    points: 0,
     final_value: 0,
     average_impact_value: 0,
     total_impact_value: 0,
@@ -198,22 +198,25 @@ export async function evaluateSlangSeverity(transcriptPayload) {
   const averageImpactValue = sectionCount === 0 ? 0 : totalImpactValue / sectionCount
   const slangScore = mapImpactToScore(averageImpactValue)
 
-  // Final value is the deduction amount requested for total score subtraction.
-  const finalValue = MAX_SLANG_SCORE - slangScore
+  // Points now directly follow impact-band score.
+  const points = slangScore
 
   return {
     parameter: 'Slang Severity',
     slang_score: slangScore,
     score: slangScore,
-    final_value: finalValue,
+    points,
+    // Keep final_value for backward compatibility with existing consumers.
+    final_value: points,
     average_impact_value: Number(averageImpactValue.toFixed(2)),
     total_impact_value: Number(totalImpactValue.toFixed(2)),
     section_count: sectionCount,
     section_analysis: sectionAnalysis,
-    status: `DEDUCTION ${finalValue}`,
+    status: `POINTS ${points}`,
     reason:
       `Average impact value is ${averageImpactValue.toFixed(2)} across ${sectionCount} sections (3-minute windows). ` +
       `Impact per section is computed as highest matched phrase frequency multiplied by its base severity weight. ` +
-      `Mapped slang score is ${slangScore} using configured impact bands, so final subtraction value is ${finalValue}.`
+      `Impact bands applied: 15 and above -> 0, 10-14 -> 1, 6-9 -> 2, 3-5 -> 3, 1-2 -> 4, and 0 -> 5. ` +
+      `Mapped slang score is ${slangScore}, and points are ${points}.`
   }
 }

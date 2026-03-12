@@ -3,7 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import { evaluateGreetings } from './src/greetings.js'
 import { evaluateClosingStatement } from './src/closingStatement.js'
-import { evaluateSummery } from './src/summery.js'
+import { evaluateSummery } from './src/summary.js'
 import { evaluateLegalDisclamer } from './src/LegalDisclamer.js'
 import { evaluateEmpathy } from './src/empathy.js'
 import { evaluateSlangSeverity } from './src/slangSeverity.js'
@@ -42,8 +42,9 @@ app.post('/api/evaluate', async (req, res) => {
 
     const positiveScore =
       greetings.score + closingStatement.score + summery.score + legalDisclamer.score + empathy.score
-    const totalScore = Math.max(0, positiveScore - (slangSeverity.final_value ?? 0))
-    const maxScore = 7
+    const slangPoints = slangSeverity.points ?? slangSeverity.final_value ?? 0
+    const maxScore = 12
+    const totalScore = Math.max(0, Math.min(maxScore, positiveScore + slangPoints))
 
     return res.json({
       score_summary: {

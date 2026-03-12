@@ -135,6 +135,8 @@ const SUPPORT_ACTION_PATTERNS = [
   'i ll share my screen'
 ]
 
+const MAX_EMPATHY_EVIDENCE_SECTIONS = 4
+
 let cachedLexicon = null
 
 function parseEmpathyEntryScore(entry) {
@@ -309,6 +311,112 @@ function segmentHasAnyPattern(normalizedSegment, patterns) {
   return patterns.some((phrase) => normalizedSegment.includes(phrase))
 }
 
+function collectPatternMatches(normalizedSegment, patterns) {
+  return patterns.filter((phrase) => normalizedSegment.includes(phrase))
+}
+
+function collectEmpathyEvidenceSections(segments, levelKeywordSets) {
+  const scoredSections = []
+
+  for (const segment of segments) {
+    const normalized = normalizeText(segment.text)
+    const tokens = normalized.split(' ').filter(Boolean)
+
+    const understandingMatches = collectPatternMatches(normalized, UNDERSTANDING_PATTERNS)
+    const acknowledgementMatches = collectPatternMatches(normalized, ACKNOWLEDGEMENT_PATTERNS)
+    const empatheticPhraseMatches = collectPatternMatches(normalized, EMPATHETIC_PHRASE_PATTERNS)
+    const supportActionMatches = collectPatternMatches(normalized, SUPPORT_ACTION_PATTERNS)
+
+    const lexiconHits = {
+      category_0: 0,
+      category_1: 0,
+      category_2: 0,
+      category_3: 0
+    }
+
+    for (const token of tokens) {
+      if (levelKeywordSets[0].has(token)) {
+        lexiconHits.category_0 += 1
+      }
+      if (levelKeywordSets[1].has(token)) {
+        lexiconHits.category_1 += 1
+      }
+      if (levelKeywordSets[2].has(token)) {
+        lexiconHits.category_2 += 1
+      }
+      if (levelKeywordSets[3].has(token)) {
+        lexiconHits.category_3 += 1
+      }
+    }
+
+    const lexiconTotalHits =
+      lexiconHits.category_0 + lexiconHits.category_1 + lexiconHits.category_2 + lexiconHits.category_3
+
+    const matchedSignals = []
+    if (understandingMatches.length > 0) {
+      matchedSignals.push('understanding')
+    }
+    if (acknowledgementMatches.length > 0) {
+      matchedSignals.push('acknowledgement')
+    }
+    if (empatheticPhraseMatches.length > 0) {
+      matchedSignals.push('empathetic_phrase')
+    }
+    if (supportActionMatches.length > 0) {
+      matchedSignals.push('support_action')
+    }
+
+    if (matchedSignals.length === 0 && lexiconTotalHits === 0) {
+      continue
+    }
+
+    const evidenceScore =
+      understandingMatches.length * 3 +
+      acknowledgementMatches.length * 3 +
+      empatheticPhraseMatches.length * 4 +
+      supportActionMatches.length * 2 +
+      lexiconTotalHits
+
+    const matchedPhrases = [
+      ...new Set([
+        ...understandingMatches,
+        ...acknowledgementMatches,
+        ...empatheticPhraseMatches,
+        ...supportActionMatches
+      ])
+    ]
+
+    scoredSections.push({
+      timestampSeconds: Number(segment.timestampSeconds ?? 0),
+      timestamp: segment.timestamp ?? null,
+      speaker: segment.speaker ?? null,
+      text: segment.text ?? '',
+      matched_signals: matchedSignals,
+      matched_phrases: matchedPhrases,
+      lexicon_hits: lexiconHits,
+      evidence_score: evidenceScore
+    })
+  }
+
+  scoredSections.sort((left, right) => {
+    if (right.evidence_score !== left.evidence_score) {
+      return right.evidence_score - left.evidence_score
+    }
+
+    return left.timestampSeconds - right.timestampSeconds
+  })
+
+  return scoredSections.slice(0, MAX_EMPATHY_EVIDENCE_SECTIONS).map((section) => ({
+    timestamp: section.timestamp,
+    speaker: section.speaker,
+    text: section.text,
+    matched_signals: section.matched_signals,
+    matched_phrases: section.matched_phrases,
+    lexicon_hits: section.lexicon_hits,
+    evidence_score: section.evidence_score
+  }))
+}
+
 function analyzeEmpathyValidation(segments) {
   const understandingMatches = collectMatchedPhrases(segments, UNDERSTANDING_PATTERNS)
   const acknowledgementMatches = collectMatchedPhrases(segments, ACKNOWLEDGEMENT_PATTERNS)
@@ -466,6 +574,7 @@ function buildFailOutput(reason) {
       support_action_segments: 0,
       fully_qualified_segments: 0
     },
+    evidence_sections: [],
     reason
   }
 }
@@ -488,6 +597,7 @@ export async function evaluateEmpathy(transcriptPayload) {
   const { counters, matchedKeywords } = countEmpathyCategoryHits(csmSegments, levelKeywordSets)
   const sentiment = analyzeSentiment(csmSegments)
   const validation = analyzeEmpathyValidation(csmSegments)
+  const evidenceSections = collectEmpathyEvidenceSections(csmSegments, levelKeywordSets)
   const totalCounterHits = counters[0] + counters[1] + counters[2] + counters[3]
   const lexiconSelection = totalCounterHits > 0 ? selectDominantBand(counters) : null
   const lexiconBand = lexiconSelection?.selectedBand ?? 0
@@ -584,6 +694,7 @@ export async function evaluateEmpathy(transcriptPayload) {
       matched_empathetic_phrases: [...validation.empatheticPhraseMatches],
       matched_support_action_phrases: [...validation.supportActionMatches]
     },
+    evidence_sections: evidenceSections,
     reason: buildReason({
       selectedBand,
       counters,
