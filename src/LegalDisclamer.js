@@ -6,27 +6,39 @@ import {
 } from './shared.js'
 import { runOpenAiIntentFallback } from './openAiFallback.js'
 
+const LEGAL_DISCLAIMER_ANALYSIS_SCOPE = 'full_transcript'
+
 const NOT_ATTORNEY_PATTERNS = [
-  /not\s+(?:an\s+)?attorneys?/i,
-  /i\s+am\s+not\s+(?:an\s+)?attorneys?/i,
-  /not\s+lawyers?/i,
-  /i\s+am\s+not\s+(?:a\s+)?lawyer/i,
+  /not\s+(?:an\s+|your\s+)?attorneys?/i,
+  /i\s+am\s+not\s+(?:an\s+|your\s+)?attorneys?/i,
+  /not\s+(?:a\s+|your\s+)?lawyers?/i,
+  /i\s+am\s+not\s+(?:a\s+|your\s+)?lawyer/i,
   /our\s+company\s+is\s+not\s+(?:a\s+)?law\s+firm/i,
   /we\s+are\s+not\s+(?:a\s+)?law\s+firm/i,
   /not\s+legal\s+attorneys?/i,
   /not\s+legal\s+representatives?/i,
+  /we\s+are\s+not\s+(?:your\s+)?legal\s+representatives?/i,
   /cannot\s+provide\s+legal\s+representation/i
 ]
 
 const NOT_LEGAL_ADVICE_PATTERNS = [
   /not\s+legal\s+advice/i,
   /does\s+not\s+constitute\s+legal\s+advice/i,
+  /should\s+not\s+be\s+(?:taken|treated)\s+as\s+legal\s+(?:advice|counsel)/i,
   /should\s+not\s+be\s+considered\s+legal\s+(?:advice|counsel)/i,
   /anything\s+discussed\s+(?:here|on\s+this\s+call)\s+is\s+not\s+legal\s+advice/i,
+  /(?:anything|whatever)\s+(?:i|we)\s+(?:say|discuss)(?:\s+(?:here|today|on\s+this\s+call))?\s+should\s+not\s+be\s+(?:taken|treated|considered)\s+as\s+legal\s+(?:advice|counsel)/i,
+  /what(?:ever)?\s+(?:i|we)\s+(?:say|discuss)(?:\s+(?:here|today|on\s+this\s+call))?\s+should\s+not\s+be\s+(?:taken|treated|considered)\s+as\s+legal\s+(?:advice|counsel)/i,
   /general\s+guidance\s+and\s+not\s+legal\s+advice/i,
   /cannot\s+offer\s+legal\s+opinions/i,
   /informational\s+guidance\s*,?\s*not\s+legal\s+advice/i,
-  /guidance\s+(?:rather\s+than|not)\s+legal\s+(?:advice|counsel)/i
+  /guidance\s+(?:rather\s+than|not)\s+legal\s+(?:advice|counsel)/i,
+  /(?:do\s*not|don't)\s+take\s+(?:this|it|what(?:ever)?\s+we\s+discuss(?:\s+here)?)\s+as\s+legal\s+(?:advice|counsel)/i,
+  /(?:do\s*not|don't)\s+consider\s+(?:this|it|that)\s+(?:to\s+be\s+)?legal\s+(?:advice|counsel)/i,
+  /(?:this|it|that)\s+(?:is\s+not|isn't)\s+(?:to\s+be\s+)?(?:taken|treated)\s+as\s+legal\s+(?:advice|counsel)/i,
+  /not\s+intended\s+as\s+legal\s+(?:advice|counsel)/i,
+  /(?:cannot|can\s*not|can't)\s+(?:give|provide|offer)\s+legal\s+(?:advice|counsel)/i,
+  /(?:do\s*not|don't)\s+interpret\s+(?:this|it|that)\s+as\s+legal\s+(?:advice|counsel)/i
 ]
 
 const LEGAL_LIMITATION_CONTEXT_PATTERNS = [
@@ -37,10 +49,30 @@ const LEGAL_LIMITATION_CONTEXT_PATTERNS = [
 
 const LEGAL_DISCLAIMER_LLM_INSTRUCTIONS = [
   'Determine whether a Legal Disclaimer is present in these CSM segments.',
-  'Definition: A Legal Disclaimer is present when the speaker communicates that they are not providing legal advice and or are not attorneys, clarifying that the information shared should not be interpreted as legal counsel.',
-  'Mark detected true if the transcript conveys either or both of these intents: a non-attorney statement such as "We are not attorneys.", "I am not a lawyer.", or "Our company is not a law firm.", and a non-legal-advice statement such as "This should not be considered legal advice.", "Anything discussed here is not legal advice.", or "This is general guidance and not legal advice."',
-  'Important rule: mark Legal Disclaimer as present if the intent of either statement is conveyed, even if the exact wording varies.',
+  'Evaluate the entire transcript across all CSM segments, not just the ending or closing portion of the call.',
+  'Definition: A Legal Disclaimer is present only when the speaker clearly communicates at least one of these intents: (1) they are not attorneys/lawyers/legal representatives, or (2) they cannot provide legal advice/legal counsel.',
+  'Mark detected false when the speaker only mentions words like legal, advice, legal advice, attorney, or lawyer in a general tone without clearly disclaiming authority or advice.',
+  'Do not infer disclaimer intent from topic mentions alone. Generic legal discussions must not be marked as disclaimer.',
+  'Mark detected true if and only if disclaimer intent is explicit or clearly paraphrased.',
   'Return the strongest supporting segment text and timestamp as evidence.'
+].join(' ')
+
+const GENERIC_LEGAL_MENTION_PATTERN = /\b(legal|advice|counsel|attorney|attorneys|lawyer|lawyers)\b/i
+
+const LEGAL_TRIGGER_KEYWORD_PATTERN =
+  /\b(legal\s+advice|legal\s+counsel|attorney|attorneys|lawyer|lawyers|counsel|legal\s+representative|legal\s+representatives|law\s+firm|advice|legal)\b/i
+
+const PER_SEGMENT_LLM_INSTRUCTIONS = [
+  'You are evaluating specific CSM (Customer Success Manager) statements from a client call.',
+  'Each statement below was flagged because it contains a legal-related keyword (such as legal advice, advice, attorney, lawyer, counsel, etc.).',
+  'For each flagged statement, determine whether the CSM is communicating —in any manner, phrasing, or tone— at least one of these intents:',
+  '(1) that they or their company are NOT attorneys, lawyers, or legal representatives, OR',
+  '(2) that whatever they discuss should NOT be considered, taken, or treated as legal advice or legal counsel.',
+  'The CSM may express this directly, indirectly, formally, casually, or through paraphrase.',
+  'Focus on the INTENT behind the words, not merely the presence of keywords.',
+  'If the CSM is only discussing a legal topic, referring to an attorney in passing, or using "advice" in a non-disclaimer context (e.g., "my advice is to call back tomorrow"), that is NOT a legal disclaimer.',
+  'Mark detected as true ONLY when the intent to disclaim legal authority or disclaim that their words constitute legal advice is clearly present in at least one statement.',
+  'If detected is true, return the specific statement that contains the disclaimer intent, its timestamp, and a brief reason explaining why it qualifies as a legal disclaimer.'
 ].join(' ')
 
 function buildPassOutput({ timestamp, text, reason, decisionSource, llmResult }) {
@@ -49,6 +81,7 @@ function buildPassOutput({ timestamp, text, reason, decisionSource, llmResult })
     disclaimer_detected: true,
     score: 1,
     status: 'PASS',
+    analysis_scope: LEGAL_DISCLAIMER_ANALYSIS_SCOPE,
     disclaimer_timestamp: timestamp,
     disclaimer_text: text,
     reason,
@@ -66,6 +99,7 @@ function buildFailOutput({ reason, llmResult } = {}) {
     disclaimer_detected: false,
     score: 0,
     status: 'FAIL',
+    analysis_scope: LEGAL_DISCLAIMER_ANALYSIS_SCOPE,
     reason: reason ?? 'No legal disclaimer provided by the CSM in the transcript.',
     decision_source: llmResult?.detected ? 'llm-negative' : 'rule-negative',
     ml_detected: Boolean(llmResult?.detected),
@@ -131,12 +165,27 @@ function computePhraseCoverage(segmentText, phraseText) {
   return overlapCount / phraseTokens.size
 }
 
-function hasLegalLimitationIntent(text) {
+function analyzeLegalDisclaimerSignals(text) {
   const attorneySignal = NOT_ATTORNEY_PATTERNS.some((pattern) => pattern.test(text))
   const legalAdviceSignal = NOT_LEGAL_ADVICE_PATTERNS.some((pattern) => pattern.test(text))
   const contextSignal = LEGAL_LIMITATION_CONTEXT_PATTERNS.some((pattern) => pattern.test(text))
+  const genericLegalMention = GENERIC_LEGAL_MENTION_PATTERN.test(text)
 
-  return attorneySignal || legalAdviceSignal || contextSignal
+  const strongIntent = attorneySignal || legalAdviceSignal
+  const weakMention = !strongIntent && (contextSignal || genericLegalMention)
+
+  return {
+    attorneySignal,
+    legalAdviceSignal,
+    contextSignal,
+    genericLegalMention,
+    strongIntent,
+    weakMention
+  }
+}
+
+function hasStrongLegalDisclaimerIntent(text) {
+  return analyzeLegalDisclaimerSignals(text).strongIntent
 }
 
 function findRepositoryMatch(csmSegments, repositoryPhrases) {
@@ -151,6 +200,8 @@ function findRepositoryMatch(csmSegments, repositoryPhrases) {
     })
     .filter((entry) => entry.normalized)
 
+  let bestStrictCandidate = null
+
   for (const segment of csmSegments) {
     const normalizedSegment = normalizeText(segment.text)
 
@@ -160,13 +211,44 @@ function findRepositoryMatch(csmSegments, repositoryPhrases) {
         (phraseRecord.tokenCount === 1 &&
           normalizedSegment.split(' ').includes(phraseRecord.normalized))
 
-      if (strictMatch && hasLegalLimitationIntent(segment.text)) {
-        return {
-          matched: true,
-          timestamp: segment.timestamp,
-          text: segment.text
-        }
+      const signalAnalysis = analyzeLegalDisclaimerSignals(segment.text)
+      const hasRelevantSignal = signalAnalysis.strongIntent || signalAnalysis.weakMention
+
+      if (!strictMatch || !hasRelevantSignal) {
+        continue
       }
+
+      const candidate = {
+        score: phraseRecord.tokenCount + (signalAnalysis.strongIntent ? 10 : 0),
+        timestamp: segment.timestamp,
+        text: segment.text,
+        timestampSeconds: segment.timestampSeconds,
+        intentStrength: signalAnalysis.strongIntent ? 'strong' : 'weak',
+        matchMode: 'repository-strict'
+      }
+
+      if (!bestStrictCandidate || candidate.score > bestStrictCandidate.score) {
+        bestStrictCandidate = candidate
+        continue
+      }
+
+      if (
+        bestStrictCandidate &&
+        candidate.score === bestStrictCandidate.score &&
+        segment.timestampSeconds < bestStrictCandidate.timestampSeconds
+      ) {
+        bestStrictCandidate = candidate
+      }
+    }
+  }
+
+  if (bestStrictCandidate) {
+    return {
+      matched: true,
+      timestamp: bestStrictCandidate.timestamp,
+      text: bestStrictCandidate.text,
+      intentStrength: bestStrictCandidate.intentStrength,
+      matchMode: bestStrictCandidate.matchMode
     }
   }
 
@@ -180,27 +262,32 @@ function findRepositoryMatch(csmSegments, repositoryPhrases) {
       const ngramScore = jaccardSimilarity(normalizedSegment, phraseRecord.normalized)
       const score = Math.max(phraseCoverage, ngramScore)
       const threshold = phraseRecord.tokenCount <= 2 ? 0.8 : phraseRecord.tokenCount <= 5 ? 0.7 : 0.6
+      const signalAnalysis = analyzeLegalDisclaimerSignals(segment.text)
+      const hasRelevantSignal = signalAnalysis.strongIntent || signalAnalysis.weakMention
+      const weightedScore = score + (signalAnalysis.strongIntent ? 0.1 : 0)
 
-      if (score >= threshold && hasLegalLimitationIntent(segment.text)) {
-        if (!bestCandidate || score > bestCandidate.score) {
+      if (score >= threshold && hasRelevantSignal) {
+        if (!bestCandidate || weightedScore > bestCandidate.score) {
           bestCandidate = {
-            score,
+            score: weightedScore,
             timestamp: segment.timestamp,
             text: segment.text,
-            timestampSeconds: segment.timestampSeconds
+            timestampSeconds: segment.timestampSeconds,
+            intentStrength: signalAnalysis.strongIntent ? 'strong' : 'weak'
           }
         }
 
         if (
           bestCandidate &&
-          score === bestCandidate.score &&
+          weightedScore === bestCandidate.score &&
           segment.timestampSeconds < bestCandidate.timestampSeconds
         ) {
           bestCandidate = {
-            score,
+            score: weightedScore,
             timestamp: segment.timestamp,
             text: segment.text,
-            timestampSeconds: segment.timestampSeconds
+            timestampSeconds: segment.timestampSeconds,
+            intentStrength: signalAnalysis.strongIntent ? 'strong' : 'weak'
           }
         }
       }
@@ -211,14 +298,18 @@ function findRepositoryMatch(csmSegments, repositoryPhrases) {
     return {
       matched: true,
       timestamp: bestCandidate.timestamp,
-      text: bestCandidate.text
+      text: bestCandidate.text,
+      intentStrength: bestCandidate.intentStrength,
+      matchMode: 'repository-flexible'
     }
   }
 
   return {
     matched: false,
     timestamp: null,
-    text: null
+    text: null,
+    intentStrength: 'none',
+    matchMode: 'none'
   }
 }
 
@@ -230,47 +321,78 @@ export async function evaluateLegalDisclamer(transcriptPayload) {
     return buildFailOutput()
   }
 
-  const aiFallback = await runOpenAiIntentFallback({
-    parameterName: 'Legal Disclaimer Detection',
-    instructions: LEGAL_DISCLAIMER_LLM_INSTRUCTIONS,
-    segments: csmSegments
-  })
-
   const repositoryPhrases = await loadDictionaryPhrases([
     'legal_disclaimer_output.json',
     'LegalDisclaimer.json'
   ])
   const repositoryMatch = findRepositoryMatch(csmSegments, repositoryPhrases)
 
-  if (repositoryMatch.matched) {
+  const triggeredSegments = csmSegments.filter((segment) =>
+    LEGAL_TRIGGER_KEYWORD_PATTERN.test(segment.text)
+  )
+
+  let perSegmentLlmResult = null
+  if (triggeredSegments.length > 0) {
+    perSegmentLlmResult = await runOpenAiIntentFallback({
+      parameterName: 'Legal Disclaimer Per-Sentence Intent Verification',
+      instructions: PER_SEGMENT_LLM_INSTRUCTIONS,
+      segments: triggeredSegments
+    })
+  }
+
+  const llmConfirmedIntent = Boolean(perSegmentLlmResult?.detected)
+
+  const transcriptHasStrongIntent = csmSegments.some((segment) =>
+    hasStrongLegalDisclaimerIntent(segment.text)
+  )
+
+  if (llmConfirmedIntent) {
+    const repoConfirmed = repositoryMatch.matched
+    let decisionSource = 'per-segment-llm'
+    let reason =
+      perSegmentLlmResult.reason ||
+      'Per-segment ML verification confirmed legal disclaimer intent in a CSM statement.'
+
+    if (repoConfirmed && transcriptHasStrongIntent) {
+      decisionSource = 'rule+per-segment-llm'
+      reason = `Rule-based patterns and per-segment ML verification both confirmed legal disclaimer intent. ML analysis: ${perSegmentLlmResult.reason}`
+    } else if (repoConfirmed) {
+      decisionSource = 'repository+per-segment-llm'
+      reason = `Repository phrase match found, and per-segment ML verification confirmed disclaimer intent. ML analysis: ${perSegmentLlmResult.reason}`
+    }
+
+    return buildPassOutput({
+      timestamp: perSegmentLlmResult.timestamp,
+      text: perSegmentLlmResult.text,
+      reason,
+      decisionSource,
+      llmResult: perSegmentLlmResult
+    })
+  }
+
+  if (repositoryMatch.matched && repositoryMatch.intentStrength === 'strong') {
     return buildPassOutput({
       timestamp: repositoryMatch.timestamp,
       text: repositoryMatch.text,
       reason:
-        aiFallback?.detected && aiFallback.reason
-          ? `Rule-based detection found a legal disclaimer in the CSM transcript. ML confirmation: ${aiFallback.reason}`
-          : 'Rule-based detection found a legal disclaimer in the CSM transcript.',
-      decisionSource: aiFallback?.detected ? 'rule+llm' : 'rule',
-      llmResult: aiFallback
+        'Rule-based detection found a definitive legal disclaimer pattern in the CSM transcript.',
+      decisionSource: 'rule',
+      llmResult: perSegmentLlmResult
     })
   }
 
-  if (aiFallback?.detected) {
-    return buildPassOutput({
-      timestamp: aiFallback.timestamp,
-      text: aiFallback.text,
+  if (triggeredSegments.length > 0) {
+    return buildFailOutput({
       reason:
-        aiFallback.reason ||
-        'ML detection identified a valid legal disclaimer in the CSM transcript.',
-      decisionSource: 'llm',
-      llmResult: aiFallback
+        perSegmentLlmResult?.reason ||
+        'CSM mentioned legal/advice/attorney terms, but per-segment ML verification did not confirm disclaimer intent in any statement.',
+      llmResult: perSegmentLlmResult
     })
   }
 
   return buildFailOutput({
     reason:
-      aiFallback?.reason ||
-      'No legal disclaimer was detected by rule-based checks or ML evaluation.',
-    llmResult: aiFallback
+      'No legal disclaimer keywords (legal advice, advice, attorney, lawyer, counsel) were found in any CSM statement.',
+    llmResult: perSegmentLlmResult
   })
 }

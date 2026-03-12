@@ -1,5 +1,37 @@
-﻿import { extractTranscriptSegments, isCsmSpeaker, normalizeText } from './shared.js'
-import { runOpenAiStructuredSummary } from './openAiFallback.js'
+﻿import {
+  extractTranscriptSegments,
+  getTotalCallDurationSeconds,
+  isCsmSpeaker,
+  loadDictionaryPhrases,
+  matchSegmentsAgainstPhrases,
+  normalizeText
+} from './shared.js'
+import { runOpenAiIntentFallback, runOpenAiStructuredSummary } from './openAiFallback.js'
+
+const SUMMARY_ANALYSIS_WINDOW_PERCENTAGE = 35
+const SUMMARY_WINDOW_START_RATIO = 1 - SUMMARY_ANALYSIS_WINDOW_PERCENTAGE / 100
+const SUMMARY_WORD_REGEX = /\bsummar(?:y|ies|ise|ises|ised|ising|isation|ize|izes|ized|izing|ization)\b/
+
+const SUMMARY_INTENT_CUES = [
+  'recap',
+  'summary',
+  'summarize',
+  'summarise',
+  'next step',
+  'next steps',
+  'key point',
+  'key points',
+  'takeaway',
+  'takeaways',
+  'action item',
+  'action items',
+  'overview',
+  'wrap up',
+  'conclusion',
+  'before we close',
+  'before we wrap up',
+  'highlights'
+]
 
 const ISSUE_CUES = [
   'issue',
@@ -80,6 +112,27 @@ const CLOSING_ONLY_CUES = [
   'thanks for joining',
   'wonderful evening'
 ]
+
+const SUMMARY_TRIGGER_KEYWORD_PATTERN =
+  /\b(summarize|summarise|summary|summarizing|summarising|recap|recapping|recapped|to\s+summarize|to\s+recap|let\s+me\s+recap|in\s+summary|just\s+to\s+recap|key\s+points?|action\s+items?|next\s+steps?|takeaways?|wrap\s+up|highlights|overview|conclusion|what\s+we\s+discussed|points\s+we\s+covered|go\s+over\s+everything)\b/i
+
+const PER_SEGMENT_SUMMARY_LLM_INSTRUCTIONS = [
+  'You are evaluating specific CSM (Customer Success Manager) statements from a client call.',
+  'Each statement below was flagged because it contains a keyword related to summarization or recapping (such as summarize, recap, next steps, action items, key points, etc.).',
+  'For each flagged statement, determine whether the CSM is expressing the INTENT to recap, summarize, or list the key points discussed during the conversation.',
+  'Summarization is considered present when the speaker indicates an intent to recap, summarize, or consolidate previously discussed items.',
+  'Examples of intent-based recap statements include:',
+  '"Here is what we discussed today."',
+  '"These are the points we covered."',
+  '"Let me quickly go over everything again."',
+  '"These are the action items."',
+  '"These are the next steps."',
+  'IMPORTANT: Mark detected as true even if the detailed summary points are incomplete or missing, as long as the INTENT to summarize or recap is clearly stated by the CSM.',
+  'If the CSM is merely mentioning next steps, action items, or key points as part of regular conversation without the intent to recap or consolidate the discussion, that is NOT summarization.',
+  'Focus on the INTENT behind the words, not merely the presence of keywords.',
+  'Mark detected as true ONLY when the intent to summarize, recap, or consolidate the conversation is clearly present in at least one statement.',
+  'If detected is true, return the specific statement that contains the summarization intent, its timestamp, and a brief reason explaining why it qualifies as summarization.'
+].join(' ')
 
 function containsAny(text, cues) {
   return cues.some((cue) => text.includes(cue))
@@ -168,6 +221,143 @@ function joinSegmentTexts(segments, maxItems = 2) {
     .filter(Boolean)
 
   return selected.join(' | ')
+}
+
+function createPhraseRecords(phrases) {
+  const uniqueMap = new Map()
+
+  for (const phrase of phrases) {
+    const normalized = normalizeText(phrase)
+    if (!normalized || uniqueMap.has(normalized)) {
+      continue
+    }
+
+    uniqueMap.set(normalized, {
+      phrase: String(phrase).trim(),
+      normalized,
+      tokenCount: normalized.split(' ').filter(Boolean).length
+    })
+  }
+
+  return [...uniqueMap.values()]
+}
+
+function hasSummaryWord(text) {
+  return SUMMARY_WORD_REGEX.test(text)
+}
+
+function hasSummaryIntentCue(text) {
+  return containsAny(text, SUMMARY_INTENT_CUES)
+}
+
+function evaluateTailSummaryIntent(segments, summaryDictionaryPhrases) {
+  const totalDuration = getTotalCallDurationSeconds(segments)
+  const summaryWindowStartSeconds = totalDuration * SUMMARY_WINDOW_START_RATIO
+
+  const csmWindowSegments = segments.filter(
+    (segment) =>
+      isCsmSpeaker(segment.speaker) &&
+      typeof segment.timestampSeconds === 'number' &&
+      segment.timestampSeconds >= summaryWindowStartSeconds
+  )
+
+  if (csmWindowSegments.length === 0) {
+    return {
+      detected: false,
+      timestamp: null,
+      evidenceText: null,
+      matchedKeywords: [],
+      mode: 'none',
+      reason: `No CSM segment was found in the final ${SUMMARY_ANALYSIS_WINDOW_PERCENTAGE}% of the call.`
+    }
+  }
+
+  const phraseRecords = createPhraseRecords(summaryDictionaryPhrases)
+  const strictCandidates = []
+
+  for (const segment of csmWindowSegments) {
+    const normalizedSegment = normalizeText(segment.text)
+    const tokens = normalizedSegment.split(' ').filter(Boolean)
+    const tokenSet = new Set(tokens)
+
+    const directMatches = phraseRecords
+      .filter(
+        (record) =>
+          normalizedSegment.includes(record.normalized) ||
+          (record.tokenCount === 1 && tokenSet.has(record.normalized))
+      )
+      .map((record) => record.phrase)
+
+    const summaryWordDetected = hasSummaryWord(normalizedSegment)
+    const intentCueDetected = hasSummaryIntentCue(normalizedSegment)
+
+    const hasIntent =
+      summaryWordDetected ||
+      intentCueDetected ||
+      directMatches.some((phrase) => normalizeText(phrase).split(' ').length >= 3)
+
+    if (!hasIntent || (directMatches.length === 0 && !summaryWordDetected)) {
+      continue
+    }
+
+    strictCandidates.push({
+      timestamp: segment.timestamp,
+      timestampSeconds: segment.timestampSeconds,
+      evidenceText: compactText(segment.text, 260),
+      matchedKeywords: directMatches,
+      summaryWordDetected,
+      intentCueDetected,
+      score: directMatches.length + (summaryWordDetected ? 3 : 0) + (intentCueDetected ? 1 : 0)
+    })
+  }
+
+  if (strictCandidates.length > 0) {
+    const bestStrictCandidate = [...strictCandidates].sort((left, right) => {
+      if (right.score !== left.score) {
+        return right.score - left.score
+      }
+
+      return right.timestampSeconds - left.timestampSeconds
+    })[0]
+
+    return {
+      detected: true,
+      timestamp: bestStrictCandidate.timestamp,
+      evidenceText: bestStrictCandidate.evidenceText,
+      matchedKeywords: bestStrictCandidate.matchedKeywords.slice(0, 8),
+      mode: 'rule-strict',
+      reason: `CSM summary intent was detected in the final ${SUMMARY_ANALYSIS_WINDOW_PERCENTAGE}% using keyword and phrase evidence.`
+    }
+  }
+
+  const flexibleMatch = matchSegmentsAgainstPhrases(csmWindowSegments, summaryDictionaryPhrases)
+
+  if (flexibleMatch.matched) {
+    const evidenceSegment = csmWindowSegments.find((segment) => segment.timestamp === flexibleMatch.timestamp)
+    const normalizedEvidence = normalizeText(evidenceSegment?.text ?? '')
+    const summaryWordDetected = hasSummaryWord(normalizedEvidence)
+    const intentCueDetected = hasSummaryIntentCue(normalizedEvidence)
+
+    if (summaryWordDetected || intentCueDetected) {
+      return {
+        detected: true,
+        timestamp: flexibleMatch.timestamp,
+        evidenceText: evidenceSegment ? compactText(evidenceSegment.text, 260) : null,
+        matchedKeywords: flexibleMatch.matchedPhrase ? [flexibleMatch.matchedPhrase] : [],
+        mode: 'rule-flexible',
+        reason: `CSM summary intent was detected in the final ${SUMMARY_ANALYSIS_WINDOW_PERCENTAGE}% using flexible phrase similarity.`
+      }
+    }
+  }
+
+  return {
+    detected: false,
+    timestamp: null,
+    evidenceText: null,
+    matchedKeywords: [],
+    mode: 'none',
+    reason: `No CSM summarisation intent was detected in the final ${SUMMARY_ANALYSIS_WINDOW_PERCENTAGE}% of the call.`
+  }
 }
 
 function selectCustomerIssue(enrichedSegments) {
@@ -378,9 +568,9 @@ function buildOutput({
   finalOutcome,
   sectionTimestamps,
   fieldCoverage,
+  summaryIntent,
   decisionSource,
-  mlSummary,
-  status
+  mlSummary
 }) {
   const summaryText = buildOverallSummary({
     customerIssue,
@@ -389,13 +579,20 @@ function buildOutput({
     finalOutcome
   })
 
-  const summaryDetected = status === 'PASS'
+  const summaryDetected = summaryIntent.detected
+  const status = summaryDetected ? 'PASS' : 'FAIL'
 
-  const baseReason =
-    summaryDetected
-      ? `Full-transcript intent summary generated with ${fieldCoverage}/4 required fields captured.`
-      : `Summary is partial. Only ${fieldCoverage}/4 required fields were confidently captured from transcript context.`
+  const coverageReason =
+    fieldCoverage >= 3
+      ? `Full-transcript summary evidence captured ${fieldCoverage}/4 required fields.`
+      : `Full-transcript summary evidence is partial with ${fieldCoverage}/4 required fields.`
 
+  const matchPreview =
+    summaryIntent.matchedKeywords.length > 0
+      ? ` Matched cues: ${summaryIntent.matchedKeywords.slice(0, 5).join(', ')}.`
+      : ''
+
+  const baseReason = `${summaryIntent.reason}${matchPreview} ${coverageReason}`
   const reason = mlSummary?.reason ? `${baseReason} ML refinement note: ${mlSummary.reason}` : baseReason
 
   return {
@@ -403,10 +600,16 @@ function buildOutput({
     summary_detected: summaryDetected,
     score: summaryDetected ? 1 : 0,
     status,
-    summary_timestamp: pickSummaryTimestamp(sectionTimestamps),
+    summary_timestamp: summaryIntent.timestamp,
     summary_text: summaryText,
     reason,
     decision_source: decisionSource,
+    analysis_window_percentage: SUMMARY_ANALYSIS_WINDOW_PERCENTAGE,
+    summary_intent_match_mode: summaryIntent.mode,
+    summary_intent_timestamp: summaryIntent.timestamp,
+    summary_intent_evidence_text: summaryIntent.evidenceText,
+    summary_intent_matched_keywords: summaryIntent.matchedKeywords,
+    full_transcript_summary_timestamp: pickSummaryTimestamp(sectionTimestamps),
     customer_issue: customerIssue,
     csm_actions_taken: csmActions,
     resolution_or_next_steps: resolutionNextSteps,
@@ -432,6 +635,12 @@ export async function evaluateSummery(transcriptPayload) {
       summary_text: null,
       reason: 'No transcript segments were detected, so full-context summarisation could not be generated.',
       decision_source: 'none',
+      analysis_window_percentage: SUMMARY_ANALYSIS_WINDOW_PERCENTAGE,
+      summary_intent_match_mode: 'none',
+      summary_intent_timestamp: null,
+      summary_intent_evidence_text: null,
+      summary_intent_matched_keywords: [],
+      full_transcript_summary_timestamp: null,
       customer_issue: null,
       csm_actions_taken: null,
       resolution_or_next_steps: null,
@@ -444,8 +653,81 @@ export async function evaluateSummery(transcriptPayload) {
     }
   }
 
+  const csmSegments = segments.filter((segment) => isCsmSpeaker(segment.speaker))
+
   const heuristicSummary = buildHeuristicSummary(segments)
   const mlSummary = await runOpenAiStructuredSummary({ segments })
+  const summaryDictionaryPhrases = await loadDictionaryPhrases([
+    'summarization_output.json',
+    'summarisation_output.json'
+  ]).catch(() => [])
+
+  const ruleIntent = evaluateTailSummaryIntent(segments, summaryDictionaryPhrases)
+
+  const triggeredSegments = csmSegments.filter((segment) =>
+    SUMMARY_TRIGGER_KEYWORD_PATTERN.test(segment.text)
+  )
+
+  let perSegmentLlmResult = null
+  if (triggeredSegments.length > 0) {
+    perSegmentLlmResult = await runOpenAiIntentFallback({
+      parameterName: 'Summarization Intent Verification',
+      instructions: PER_SEGMENT_SUMMARY_LLM_INSTRUCTIONS,
+      segments: triggeredSegments
+    })
+  }
+
+  const llmConfirmedIntent = Boolean(perSegmentLlmResult?.detected)
+
+  const summaryIntent = (() => {
+    if (llmConfirmedIntent) {
+      const ruleAlsoDetected = ruleIntent.detected
+      let mode = 'per-segment-llm'
+      let reason =
+        perSegmentLlmResult.reason ||
+        'Per-segment ML verification confirmed summarization intent in a CSM statement.'
+
+      if (ruleAlsoDetected) {
+        mode = 'rule+per-segment-llm'
+        reason = `Rule-based patterns and per-segment ML verification both confirmed summarization intent. ML analysis: ${perSegmentLlmResult.reason}`
+      }
+
+      return {
+        detected: true,
+        timestamp: perSegmentLlmResult.timestamp ?? ruleIntent.timestamp,
+        evidenceText: perSegmentLlmResult.text ?? ruleIntent.evidenceText,
+        matchedKeywords: ruleIntent.matchedKeywords,
+        mode,
+        reason
+      }
+    }
+
+    if (ruleIntent.detected) {
+      return ruleIntent
+    }
+
+    if (triggeredSegments.length > 0) {
+      return {
+        detected: false,
+        timestamp: null,
+        evidenceText: null,
+        matchedKeywords: [],
+        mode: 'none',
+        reason:
+          perSegmentLlmResult?.reason ||
+          'CSM mentioned summarization-related keywords, but per-segment ML verification did not confirm recap/summarization intent in any statement.'
+      }
+    }
+
+    return {
+      detected: false,
+      timestamp: null,
+      evidenceText: null,
+      matchedKeywords: [],
+      mode: 'none',
+      reason: 'No summarization keywords (summarize, recap, next steps, action items, key points, etc.) were found in any CSM statement.'
+    }
+  })()
 
   const customerIssue = mlSummary?.customerIssue ?? heuristicSummary.customerIssue.text
   const csmActions = mlSummary?.csmActions ?? heuristicSummary.csmActions.text
@@ -463,7 +745,15 @@ export async function evaluateSummery(transcriptPayload) {
   }
 
   const fieldCoverage = Object.values(coverageFlags).filter(Boolean).length
-  const status = fieldCoverage >= 3 ? 'PASS' : 'FAIL'
+
+  const decisionSource = (() => {
+    const parts = []
+    if (summaryIntent.mode.includes('llm')) parts.push('per-segment-llm')
+    if (summaryIntent.mode.includes('rule')) parts.push('rule')
+    if (!parts.length) parts.push('heuristic')
+    if (mlSummary) parts.push('structured-llm')
+    return parts.join('+') + `:${summaryIntent.mode}`
+  })()
 
   return buildOutput({
     customerIssue,
@@ -477,8 +767,8 @@ export async function evaluateSummery(transcriptPayload) {
       finalOutcome: heuristicSummary.finalOutcome.timestamp
     },
     fieldCoverage,
-    decisionSource: mlSummary ? 'heuristic+llm' : 'heuristic',
-    mlSummary,
-    status
+    summaryIntent,
+    decisionSource,
+    mlSummary
   })
 }
