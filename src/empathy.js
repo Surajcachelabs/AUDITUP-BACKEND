@@ -1,8 +1,14 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { extractTranscriptSegments, isCsmSpeaker, normalizeText } from './shared.js'
+import { runOpenAiEmpathyStressDetection } from './openAiFallback.js'
 
-const EMPATHY_DATA_PATH = path.join(process.cwd(), 'Json', 'empathy_data.json')
+const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url))
+const EMPATHY_DATA_PATH = path.join(MODULE_DIR, '..', 'Json', 'empathy_data.json')
+
+const MAX_EMPATHY_EVIDENCE_SECTIONS = 4
+const MAX_RESPONSE_SEGMENTS_PER_TRIGGER = 3
 
 const STOP_WORDS = new Set([
   'the',
@@ -35,119 +41,141 @@ const STOP_WORDS = new Set([
   'let',
   'clarify',
   'just',
-  'okay'
+  'okay',
+  'our',
+  'their',
+  'them',
+  'from',
+  'into',
+  'what',
+  'when'
 ])
 
-const POSITIVE_PATTERNS = [
+const EMOTIONAL_TRIGGER_PATTERNS = [
+  'frustrated',
+  'frustrating',
+  'stress',
+  'stressed',
+  'concern',
+  'concerned',
+  'confused',
+  'confusing',
+  'worry',
+  'worried',
+  'disappointed',
+  'urgent',
+  'urgency',
+  'anxious',
+  'anxiety',
+  'overwhelmed',
+  'afraid',
+  'fear'
+]
+
+const DIFFICULTY_TRIGGER_PATTERNS = [
+  'cannot upload',
+  'cant upload',
+  'unable to upload',
+  'cannot submit',
+  'cant submit',
+  'cannot understand',
+  'dont understand',
+  'do not understand',
+  'delay',
+  'taking so long',
+  'timeline',
+  'deadline',
+  'technical issue',
+  'technical problem',
+  'error',
+  'financial concern',
+  'fear of rejection',
+  'fear of denial',
+  'unable to complete',
+  'cannot complete',
+  'cant complete'
+]
+
+const TRIGGER_REGEX_RULES = [
+  /\b(cannot|cant|unable|not able)\b.*\b(upload|submit|understand|complete|finish|proceed|document|docs|steps?)\b/,
+  /\b(why|how)\b.*\b(taking so long|delay|stuck|not moving)\b/,
+  /\b(really|very|so)\b.*\b(worried|stressed|confused|concerned|frustrated)\b/
+]
+
+const BASIC_ACKNOWLEDGEMENT_PATTERNS = [
   'i understand',
-  'i understand your concern',
-  'i hear your frustration',
-  'i can see why',
-  'i can imagine',
-  'that sounds stressful',
+  'got it',
+  'thanks for sharing',
+  'i see',
+  'i see what you re saying',
+  'noted',
+  'okay i understand',
+  'understood',
+  'i get your point'
+]
+
+const EMOTIONAL_RECOGNITION_PATTERNS = [
+  'this delay is frustrating',
   'that must be concerning',
-  'sorry',
-  'support you',
-  'work together',
-  'we are actively working',
-  'your concern is valid',
-  'we are prioritizing',
-  'guiding you',
-  'thanks for sharing'
-]
-
-const NEGATIVE_PATTERNS = [
-  'that is company policy',
-  'that is not our responsibility',
-  'there is nothing we can do',
-  'you need to submit',
-  'just upload',
-  'you will have to wait',
-  'please follow the checklist',
-  'cannot',
-  'cant',
-  'not possible'
-]
-
-const UNDERSTANDING_PATTERNS = [
-  'i understand',
-  'i completely understand',
-  'i can understand',
-  'i get that',
-  'i get it',
-  'i hear you',
-  'i hear your',
-  'i can see why',
-  'i can imagine'
-]
-
-const ACKNOWLEDGEMENT_PATTERNS = [
-  'your concern',
-  'your frustration',
-  'your inconvenience',
-  'your situation',
-  'i get that',
-  'i know this is',
-  'i know it can be',
-  'this is frustrating',
   'that sounds stressful',
-  'that must be concerning',
-  'that must be difficult',
-  'i hear your concern',
+  'i can see why that would be stressful',
+  'i can imagine this feels overwhelming',
+  'i understand how important this is',
+  'i see why this would cause concern',
+  'i understand this situation is difficult',
+  'i understand this can be frustrating',
+  'i completely understand your worry',
   'i hear your frustration'
 ]
 
-const EMPATHETIC_PHRASE_PATTERNS = [
-  'i understand',
-  'i am sorry',
-  'i m sorry',
-  'im sorry',
-  'sorry for the inconvenience',
-  'sorry about that',
-  'i apologize',
-  'i appreciate your patience',
-  'thank you for sharing',
-  'your concern is valid',
-  'we are here to help',
+const STRONG_SUPPORT_PATTERNS = [
+  'we will work together',
+  'we are actively working on this',
+  'we are prioritizing your case',
+  'i will ensure',
+  'i ll ensure',
+  'i will personally ensure',
+  'i ll personally ensure',
+  'i will stay with you',
+  'we will guide you',
+  'i am here to support',
+  'i m here to support',
+  'i am here to help',
   'i m here to help',
-  'i am here to help'
+  'we will resolve this',
+  'we ll resolve this',
+  'we will keep you updated',
+  'we ll keep you updated',
+  'we will do everything'
 ]
 
-const SUPPORT_ACTION_PATTERNS = [
-  'i will check',
-  'i ll check',
-  'i will get that checked',
-  'i ll get that checked',
-  'i will do that',
-  'i ll do that',
-  'i will assist',
-  'i ll assist',
-  'i can assist',
-  'i will remind you',
-  'i ll remind you',
-  'i will connect you',
-  'i ll connect you',
-  'i will help',
-  'i ll help',
-  'let me check',
-  'let me see what i can do',
-  'i will share my screen',
-  'i ll share my screen'
+const DISMISSIVE_OR_PROCEDURAL_PATTERNS = [
+  'that is company policy',
+  'that is not our responsibility',
+  'there is nothing we can do',
+  'you need to submit the documents',
+  'you will have to wait',
+  'just upload the files',
+  'please follow the checklist',
+  'that is the process',
+  'this is how it works',
+  'cannot help',
+  'not possible'
 ]
 
-const MAX_EMPATHY_EVIDENCE_SECTIONS = 4
+const CONTRAST_CONNECTOR_PATTERNS = ['but', 'however', 'unfortunately']
 
-let cachedLexicon = null
+let cachedDataset = null
 
 function parseEmpathyEntryScore(entry) {
   const rawScore = entry?.['Empathy Level/Score'] ?? entry?.empathyScore ?? entry?.score
-  const numeric = Number(rawScore)
+  const numericScore = Number(rawScore)
 
-  if (!Number.isInteger(numeric) || numeric < 0 || numeric > 3) {
+  if (!Number.isInteger(numericScore) || numericScore < 0 || numericScore > 3) {
     return null
   }
 
-  return numeric
+  return numericScore
 }
 
 function extractTokens(value) {
@@ -156,8 +184,42 @@ function extractTokens(value) {
     .filter((token) => token.length >= 3 && !STOP_WORDS.has(token))
 }
 
-function buildLexicon(entries) {
-  const levelKeywordSets = {
+function collectPatternMatches(normalizedText, patterns) {
+  return patterns.filter((pattern) => normalizedText.includes(pattern))
+}
+
+function hasAnyPattern(normalizedText, patterns) {
+  return patterns.some((pattern) => normalizedText.includes(pattern))
+}
+
+function computeTokenSetSimilarity(responseTokenSet, candidateTokenSet) {
+  if (responseTokenSet.size === 0 || candidateTokenSet.size === 0) {
+    return 0
+  }
+
+  let intersectionCount = 0
+  for (const token of responseTokenSet) {
+    if (candidateTokenSet.has(token)) {
+      intersectionCount += 1
+    }
+  }
+
+  if (intersectionCount === 0) {
+    return 0
+  }
+
+  const unionCount = responseTokenSet.size + candidateTokenSet.size - intersectionCount
+  return intersectionCount / unionCount
+}
+
+function buildDatasetIndex(entries) {
+  const entriesByScore = {
+    0: [],
+    1: [],
+    2: [],
+    3: []
+  }
+  const textSetByScore = {
     0: new Set(),
     1: new Set(),
     2: new Set(),
@@ -172,19 +234,34 @@ function buildLexicon(entries) {
       continue
     }
 
-    const tokens = extractTokens(text)
-
-    for (const token of tokens) {
-      levelKeywordSets[score].add(token)
+    const normalizedText = normalizeText(text)
+    if (!normalizedText || textSetByScore[score].has(normalizedText)) {
+      continue
     }
+
+    textSetByScore[score].add(normalizedText)
+
+    entriesByScore[score].push({
+      text: text.trim(),
+      normalizedText,
+      tokenSet: new Set(extractTokens(normalizedText))
+    })
   }
 
-  return levelKeywordSets
+  return {
+    entriesByScore,
+    textSetByScore,
+    totalEntries:
+      entriesByScore[0].length +
+      entriesByScore[1].length +
+      entriesByScore[2].length +
+      entriesByScore[3].length
+  }
 }
 
-async function loadEmpathyLexicon() {
-  if (cachedLexicon) {
-    return cachedLexicon
+async function loadEmpathyDataset() {
+  if (cachedDataset) {
+    return cachedDataset
   }
 
   const rawText = await fs.readFile(EMPATHY_DATA_PATH, 'utf8')
@@ -194,52 +271,357 @@ async function loadEmpathyLexicon() {
     throw new Error('Invalid empathy_data.json format. Expected array.')
   }
 
-  cachedLexicon = buildLexicon(parsed)
-  return cachedLexicon
+  cachedDataset = buildDatasetIndex(parsed)
+  return cachedDataset
 }
 
-function analyzeSentiment(segments) {
-  let positiveHits = 0
-  let negativeHits = 0
+function buildLlmStressIndex(segments, llmStressSegments) {
+  const stressByIndex = new Map()
 
-  for (const segment of segments) {
-    const normalized = normalizeText(segment.text)
+  if (!Array.isArray(llmStressSegments)) {
+    return stressByIndex
+  }
 
-    for (const phrase of POSITIVE_PATTERNS) {
-      if (normalized.includes(phrase)) {
-        positiveHits += 1
-      }
+  for (const item of llmStressSegments) {
+    const index = Number(item?.index)
+
+    if (!Number.isInteger(index) || index < 0 || index >= segments.length) {
+      continue
     }
 
-    for (const phrase of NEGATIVE_PATTERNS) {
-      if (normalized.includes(phrase)) {
-        negativeHits += 1
-      }
+    if (isCsmSpeaker(segments[index]?.speaker)) {
+      continue
+    }
+
+    if (!stressByIndex.has(index)) {
+      stressByIndex.set(index, {
+        emotion: typeof item?.emotion === 'string' ? item.emotion.trim() : '',
+        reason: typeof item?.reason === 'string' ? item.reason.trim() : ''
+      })
     }
   }
 
-  const sentimentScore = positiveHits - negativeHits
+  return stressByIndex
+}
 
-  let band = 1
-  if (sentimentScore <= -2) {
-    band = 0
-  } else if (sentimentScore <= 0) {
-    band = 1
-  } else if (sentimentScore <= 3) {
-    band = 2
-  } else {
-    band = 3
+function detectTriggerSignals(clientText) {
+  const normalizedClientText = normalizeText(clientText)
+  const emotionalMatches = collectPatternMatches(normalizedClientText, EMOTIONAL_TRIGGER_PATTERNS)
+  const difficultyMatches = collectPatternMatches(normalizedClientText, DIFFICULTY_TRIGGER_PATTERNS)
+  const regexMatchCount = TRIGGER_REGEX_RULES.filter((rule) => rule.test(normalizedClientText)).length
+
+  const triggerSignals = []
+  if (emotionalMatches.length > 0) {
+    triggerSignals.push('emotional_signal')
+  }
+  if (difficultyMatches.length > 0 || regexMatchCount > 0) {
+    triggerSignals.push('difficulty_signal')
   }
 
   return {
-    sentimentScore,
-    band,
-    positiveHits,
-    negativeHits
+    hasTrigger: triggerSignals.length > 0,
+    triggerSignals,
+    emotionalMatches,
+    difficultyMatches,
+    regexMatchCount
   }
 }
 
-function countEmpathyCategoryHits(segments, levelKeywordSets) {
+function findBestDatasetSimilarity(normalizedResponse, responseTokenSet, dataset) {
+  const bestByScore = {
+    0: { similarity: 0, text: null },
+    1: { similarity: 0, text: null },
+    2: { similarity: 0, text: null },
+    3: { similarity: 0, text: null }
+  }
+
+  for (let score = 0; score <= 3; score += 1) {
+    if (dataset.textSetByScore[score].has(normalizedResponse)) {
+      bestByScore[score] = {
+        similarity: 1,
+        text: normalizedResponse
+      }
+      continue
+    }
+
+    for (const candidate of dataset.entriesByScore[score]) {
+      const similarity = computeTokenSetSimilarity(responseTokenSet, candidate.tokenSet)
+      if (similarity > bestByScore[score].similarity) {
+        bestByScore[score] = {
+          similarity,
+          text: candidate.text
+        }
+      }
+    }
+  }
+
+  let bestScore = 0
+  let bestSimilarity = 0
+  let bestText = null
+
+  for (let score = 0; score <= 3; score += 1) {
+    const candidate = bestByScore[score]
+    if (
+      candidate.similarity > bestSimilarity ||
+      (candidate.similarity === bestSimilarity && score > bestScore)
+    ) {
+      bestScore = score
+      bestSimilarity = candidate.similarity
+      bestText = candidate.text
+    }
+  }
+
+  return {
+    bestScore,
+    bestSimilarity,
+    bestText,
+    bestByScore
+  }
+}
+
+function collectTriggerResponseInteractions(segments) {
+  const interactions = []
+  let pendingTriggerSegments = []
+
+  for (let index = 0; index < segments.length; index += 1) {
+    const segment = segments[index]
+
+    if (isCsmSpeaker(segment.speaker)) {
+      if (pendingTriggerSegments.length === 0) {
+        continue
+      }
+
+      const responseSegments = []
+      let responseIndex = index
+
+      while (responseIndex < segments.length && isCsmSpeaker(segments[responseIndex].speaker)) {
+        if (responseSegments.length < MAX_RESPONSE_SEGMENTS_PER_TRIGGER) {
+          responseSegments.push(segments[responseIndex])
+        }
+
+        responseIndex += 1
+      }
+
+      interactions.push({
+        triggerSegments: pendingTriggerSegments,
+        responseSegments
+      })
+
+      pendingTriggerSegments = []
+      index = responseIndex - 1
+      continue
+    }
+
+    const triggerEvaluation = detectTriggerSignals(segment.text)
+
+    if (!triggerEvaluation.hasTrigger) {
+      continue
+    }
+
+    pendingTriggerSegments.push({
+      ...segment,
+      trigger_signals: triggerEvaluation.triggerSignals,
+      matched_trigger_phrases: [
+        ...triggerEvaluation.emotionalMatches,
+        ...triggerEvaluation.difficultyMatches
+      ],
+      stress_detection_source: 'rule',
+      stress_reason: '',
+      stress_emotion: ''
+    })
+  }
+
+  return interactions
+}
+
+function collectLlmPreprocessedInteractions(segments, llmStressSegments) {
+  const stressByIndex = buildLlmStressIndex(segments, llmStressSegments)
+
+  if (stressByIndex.size === 0) {
+    return []
+  }
+
+  const interactions = []
+  let pendingTriggerSegments = []
+
+  for (let index = 0; index < segments.length; index += 1) {
+    const segment = segments[index]
+
+    if (isCsmSpeaker(segment.speaker)) {
+      if (pendingTriggerSegments.length === 0) {
+        continue
+      }
+
+      const responseSegments = []
+      let responseIndex = index
+
+      while (responseIndex < segments.length && isCsmSpeaker(segments[responseIndex].speaker)) {
+        if (responseSegments.length < MAX_RESPONSE_SEGMENTS_PER_TRIGGER) {
+          responseSegments.push(segments[responseIndex])
+        }
+
+        responseIndex += 1
+      }
+
+      interactions.push({
+        triggerSegments: pendingTriggerSegments,
+        responseSegments,
+        stressDetectionSource: 'llm'
+      })
+
+      pendingTriggerSegments = []
+      index = responseIndex - 1
+      continue
+    }
+
+    if (!stressByIndex.has(index)) {
+      continue
+    }
+
+    const llmStress = stressByIndex.get(index)
+    const triggerEvaluation = detectTriggerSignals(segment.text)
+
+    pendingTriggerSegments.push({
+      ...segment,
+      trigger_signals: [...new Set(['llm_stress_detected', ...triggerEvaluation.triggerSignals])],
+      matched_trigger_phrases: [
+        ...new Set([
+          ...triggerEvaluation.emotionalMatches,
+          ...triggerEvaluation.difficultyMatches,
+          llmStress.emotion || null
+        ].filter(Boolean))
+      ],
+      stress_detection_source: 'llm',
+      stress_reason: llmStress.reason,
+      stress_emotion: llmStress.emotion
+    })
+  }
+
+  return interactions
+}
+
+async function collectPreprocessedTriggerResponseInteractions(segments) {
+  const llmStressSegments = await runOpenAiEmpathyStressDetection({ segments })
+
+  if (Array.isArray(llmStressSegments)) {
+    return {
+      source: 'llm',
+      llmStressCount: llmStressSegments.length,
+      interactions: collectLlmPreprocessedInteractions(segments, llmStressSegments)
+    }
+  }
+
+  return {
+    source: 'rule_fallback',
+    llmStressCount: 0,
+    interactions: collectTriggerResponseInteractions(segments)
+  }
+}
+
+function evaluateSingleResponse(interaction, dataset) {
+  const responseText = interaction.responseSegments.map((segment) => segment.text).join(' ').trim()
+  const normalizedResponse = normalizeText(responseText)
+  const responseTokenSet = new Set(extractTokens(normalizedResponse))
+
+  const basicMatches = collectPatternMatches(normalizedResponse, BASIC_ACKNOWLEDGEMENT_PATTERNS)
+  const emotionalMatches = collectPatternMatches(normalizedResponse, EMOTIONAL_RECOGNITION_PATTERNS)
+  const supportMatches = collectPatternMatches(normalizedResponse, STRONG_SUPPORT_PATTERNS)
+  const dismissiveMatches = collectPatternMatches(normalizedResponse, DISMISSIVE_OR_PROCEDURAL_PATTERNS)
+  const hasContrastConnector = hasAnyPattern(normalizedResponse, CONTRAST_CONNECTOR_PATTERNS)
+
+  const datasetSimilarity = findBestDatasetSimilarity(normalizedResponse, responseTokenSet, dataset)
+  const datasetSuggestedScore =
+    datasetSimilarity.bestSimilarity >= 0.58 ? datasetSimilarity.bestScore : null
+
+  const hasDismissiveTone =
+    dismissiveMatches.length > 0 &&
+    emotionalMatches.length === 0 &&
+    supportMatches.length === 0 &&
+    (basicMatches.length === 0 || hasContrastConnector)
+
+  let score = 0
+  let classLabel = 'no_empathy'
+
+  if (hasDismissiveTone) {
+    score = 0
+    classLabel = 'dismissive_or_procedural'
+  } else if (emotionalMatches.length > 0 && supportMatches.length > 0) {
+    score = 3
+    classLabel = 'strong_empathy_with_support'
+  } else if (emotionalMatches.length > 0) {
+    score = 2
+    classLabel = 'emotional_recognition'
+  } else if (basicMatches.length > 0) {
+    score = 1
+    classLabel = 'basic_acknowledgement'
+  }
+
+  if (
+    score <= 1 &&
+    datasetSuggestedScore != null &&
+    datasetSuggestedScore >= 2 &&
+    dismissiveMatches.length === 0 &&
+    datasetSimilarity.bestSimilarity >= 0.66
+  ) {
+    score = datasetSuggestedScore === 3 && supportMatches.length > 0 ? 3 : 2
+    classLabel = score === 3 ? 'strong_empathy_with_support' : 'emotional_recognition'
+  }
+
+  if (
+    dismissiveMatches.length > 0 &&
+    hasContrastConnector &&
+    supportMatches.length === 0 &&
+    emotionalMatches.length <= 1
+  ) {
+    score = 0
+    classLabel = 'dismissive_or_procedural'
+  }
+
+  const matchedSignals = []
+  if (basicMatches.length > 0) {
+    matchedSignals.push('basic_acknowledgement')
+  }
+  if (emotionalMatches.length > 0) {
+    matchedSignals.push('emotional_recognition')
+  }
+  if (supportMatches.length > 0) {
+    matchedSignals.push('support_commitment')
+  }
+  if (dismissiveMatches.length > 0) {
+    matchedSignals.push('dismissive_or_procedural')
+  }
+  if (datasetSuggestedScore != null) {
+    matchedSignals.push('dataset_similarity')
+  }
+
+  const matchedPhrases = [
+    ...new Set(
+      [
+        ...basicMatches,
+        ...emotionalMatches,
+        ...supportMatches,
+        ...dismissiveMatches,
+        datasetSimilarity.bestText ? `dataset_match: ${datasetSimilarity.bestText}` : null
+      ].filter(Boolean)
+    )
+  ]
+
+  return {
+    score,
+    classLabel,
+    responseText,
+    matchedSignals,
+    matchedPhrases,
+    datasetSuggestedScore,
+    datasetSimilarity: datasetSimilarity.bestSimilarity,
+    datasetMatchedText: datasetSimilarity.bestText,
+    stressDetectionSource: interaction.stressDetectionSource ?? interaction.triggerSegments[0]?.stress_detection_source ?? 'rule',
+    triggerSegments: interaction.triggerSegments,
+    responseSegments: interaction.responseSegments
+  }
+}
+
+function summarizeScores(scoredResponses) {
   const counters = {
     0: 0,
     1: 0,
@@ -247,332 +629,113 @@ function countEmpathyCategoryHits(segments, levelKeywordSets) {
     3: 0
   }
 
-  const matchedKeywords = {
-    0: new Set(),
-    1: new Set(),
-    2: new Set(),
-    3: new Set()
-  }
+  let totalScore = 0
+  let dismissiveCount = 0
+  let strongCount = 0
+  let basicOnlyCount = 0
 
-  for (const segment of segments) {
-    const tokens = normalizeText(segment.text).split(' ').filter(Boolean)
+  for (const response of scoredResponses) {
+    counters[response.score] += 1
+    totalScore += response.score
 
-    for (const token of tokens) {
-      for (let level = 0; level <= 3; level += 1) {
-        if (levelKeywordSets[level].has(token)) {
-          counters[level] += 1
-          matchedKeywords[level].add(token)
-        }
-      }
+    if (response.classLabel === 'dismissive_or_procedural' || response.classLabel === 'no_empathy') {
+      dismissiveCount += 1
+    }
+    if (response.classLabel === 'strong_empathy_with_support') {
+      strongCount += 1
+    }
+    if (response.classLabel === 'basic_acknowledgement') {
+      basicOnlyCount += 1
     }
   }
 
+  const averageScore = scoredResponses.length > 0 ? totalScore / scoredResponses.length : 0
+  let finalBand = Math.round(averageScore)
+
+  if (strongCount === scoredResponses.length && scoredResponses.length > 0) {
+    finalBand = 3
+  }
+
+  if (dismissiveCount > 0 && finalBand === 3) {
+    finalBand = 2
+  }
+
+  if (dismissiveCount >= Math.ceil(scoredResponses.length / 2) && finalBand > 1) {
+    finalBand = 1
+  }
+
+  if (basicOnlyCount === scoredResponses.length && finalBand > 1) {
+    finalBand = 1
+  }
+
+  finalBand = Math.max(0, Math.min(3, finalBand))
+
   return {
+    finalBand,
+    averageScore,
     counters,
-    matchedKeywords
-  }
-}
-
-function selectDominantBand(counters) {
-  let selectedBand = 0
-  let maxCount = -1
-
-  for (let level = 0; level <= 3; level += 1) {
-    const count = counters[level]
-
-    if (count > maxCount || (count === maxCount && level > selectedBand)) {
-      selectedBand = level
-      maxCount = count
-    }
-  }
-
-  return {
-    selectedBand,
-    maxCount
-  }
-}
-
-function collectMatchedPhrases(segments, patterns) {
-  const matches = new Set()
-
-  for (const segment of segments) {
-    const normalized = normalizeText(segment.text)
-    for (const phrase of patterns) {
-      if (normalized.includes(phrase)) {
-        matches.add(phrase)
-      }
-    }
-  }
-
-  return matches
-}
-
-function segmentHasAnyPattern(normalizedSegment, patterns) {
-  return patterns.some((phrase) => normalizedSegment.includes(phrase))
-}
-
-function collectPatternMatches(normalizedSegment, patterns) {
-  return patterns.filter((phrase) => normalizedSegment.includes(phrase))
-}
-
-function collectEmpathyEvidenceSections(segments, levelKeywordSets) {
-  const scoredSections = []
-
-  for (const segment of segments) {
-    const normalized = normalizeText(segment.text)
-    const tokens = normalized.split(' ').filter(Boolean)
-
-    const understandingMatches = collectPatternMatches(normalized, UNDERSTANDING_PATTERNS)
-    const acknowledgementMatches = collectPatternMatches(normalized, ACKNOWLEDGEMENT_PATTERNS)
-    const empatheticPhraseMatches = collectPatternMatches(normalized, EMPATHETIC_PHRASE_PATTERNS)
-    const supportActionMatches = collectPatternMatches(normalized, SUPPORT_ACTION_PATTERNS)
-
-    const lexiconHits = {
-      category_0: 0,
-      category_1: 0,
-      category_2: 0,
-      category_3: 0
-    }
-
-    for (const token of tokens) {
-      if (levelKeywordSets[0].has(token)) {
-        lexiconHits.category_0 += 1
-      }
-      if (levelKeywordSets[1].has(token)) {
-        lexiconHits.category_1 += 1
-      }
-      if (levelKeywordSets[2].has(token)) {
-        lexiconHits.category_2 += 1
-      }
-      if (levelKeywordSets[3].has(token)) {
-        lexiconHits.category_3 += 1
-      }
-    }
-
-    const lexiconTotalHits =
-      lexiconHits.category_0 + lexiconHits.category_1 + lexiconHits.category_2 + lexiconHits.category_3
-
-    const matchedSignals = []
-    if (understandingMatches.length > 0) {
-      matchedSignals.push('understanding')
-    }
-    if (acknowledgementMatches.length > 0) {
-      matchedSignals.push('acknowledgement')
-    }
-    if (empatheticPhraseMatches.length > 0) {
-      matchedSignals.push('empathetic_phrase')
-    }
-    if (supportActionMatches.length > 0) {
-      matchedSignals.push('support_action')
-    }
-
-    if (matchedSignals.length === 0 && lexiconTotalHits === 0) {
-      continue
-    }
-
-    const evidenceScore =
-      understandingMatches.length * 3 +
-      acknowledgementMatches.length * 3 +
-      empatheticPhraseMatches.length * 4 +
-      supportActionMatches.length * 2 +
-      lexiconTotalHits
-
-    const matchedPhrases = [
-      ...new Set([
-        ...understandingMatches,
-        ...acknowledgementMatches,
-        ...empatheticPhraseMatches,
-        ...supportActionMatches
-      ])
-    ]
-
-    scoredSections.push({
-      timestampSeconds: Number(segment.timestampSeconds ?? 0),
-      timestamp: segment.timestamp ?? null,
-      speaker: segment.speaker ?? null,
-      text: segment.text ?? '',
-      matched_signals: matchedSignals,
-      matched_phrases: matchedPhrases,
-      lexicon_hits: lexiconHits,
-      evidence_score: evidenceScore
-    })
-  }
-
-  scoredSections.sort((left, right) => {
-    if (right.evidence_score !== left.evidence_score) {
-      return right.evidence_score - left.evidence_score
-    }
-
-    return left.timestampSeconds - right.timestampSeconds
-  })
-
-  return scoredSections.slice(0, MAX_EMPATHY_EVIDENCE_SECTIONS).map((section) => ({
-    timestamp: section.timestamp,
-    speaker: section.speaker,
-    text: section.text,
-    matched_signals: section.matched_signals,
-    matched_phrases: section.matched_phrases,
-    lexicon_hits: section.lexicon_hits,
-    evidence_score: section.evidence_score
-  }))
-}
-
-function analyzeEmpathyValidation(segments) {
-  const understandingMatches = collectMatchedPhrases(segments, UNDERSTANDING_PATTERNS)
-  const acknowledgementMatches = collectMatchedPhrases(segments, ACKNOWLEDGEMENT_PATTERNS)
-  const empatheticPhraseMatches = collectMatchedPhrases(segments, EMPATHETIC_PHRASE_PATTERNS)
-  const supportActionMatches = collectMatchedPhrases(segments, SUPPORT_ACTION_PATTERNS)
-
-  let signalSegmentCount = 0
-  let fullyQualifiedSegmentCount = 0
-  let supportActionSegmentCount = 0
-
-  for (const segment of segments) {
-    const normalized = normalizeText(segment.text)
-    const hasUnderstanding = segmentHasAnyPattern(normalized, UNDERSTANDING_PATTERNS)
-    const hasAcknowledgement = segmentHasAnyPattern(normalized, ACKNOWLEDGEMENT_PATTERNS)
-    const hasEmpatheticPhrase = segmentHasAnyPattern(normalized, EMPATHETIC_PHRASE_PATTERNS)
-    const hasSupportAction = segmentHasAnyPattern(normalized, SUPPORT_ACTION_PATTERNS)
-
-    if (hasUnderstanding || hasAcknowledgement || hasEmpatheticPhrase || hasSupportAction) {
-      signalSegmentCount += 1
-    }
-
-    if (hasSupportAction) {
-      supportActionSegmentCount += 1
-    }
-
-    if ((hasUnderstanding || hasAcknowledgement) && (hasEmpatheticPhrase || hasSupportAction)) {
-      fullyQualifiedSegmentCount += 1
-    }
-  }
-
-  const understandingCount = understandingMatches.size
-  const acknowledgementCount = acknowledgementMatches.size
-  const empatheticPhraseCount = empatheticPhraseMatches.size
-  const supportActionCount = supportActionMatches.size
-  const coreSignalCount = understandingCount + acknowledgementCount + empatheticPhraseCount
-  const weightedScore =
-    understandingCount * 2 +
-    acknowledgementCount * 2 +
-    empatheticPhraseCount * 2 +
-    supportActionCount
-
-  let recommendedBand = 0
-
-  if (coreSignalCount === 0) {
-    if (supportActionCount >= 2 && signalSegmentCount >= 2) {
-      recommendedBand = 1
-    }
-  } else if (weightedScore >= 10 && fullyQualifiedSegmentCount >= 2 && signalSegmentCount >= 2) {
-    recommendedBand = 3
-  } else if (weightedScore >= 5 && signalSegmentCount >= 2) {
-    recommendedBand = 2
-  } else {
-    recommendedBand = 1
-  }
-
-  return {
-    hasUnderstanding: understandingCount > 0,
-    hasAcknowledgement: acknowledgementCount > 0,
-    hasEmpatheticPhrases: empatheticPhraseCount > 0,
-    hasSupportActions: supportActionCount > 0,
-    understandingCount,
-    acknowledgementCount,
-    empatheticPhraseCount,
-    supportActionCount,
-    coreSignalCount,
-    weightedScore,
-    recommendedBand,
-    signalSegmentCount,
-    supportActionSegmentCount,
-    fullyQualifiedSegmentCount,
-    understandingMatches,
-    acknowledgementMatches,
-    empatheticPhraseMatches,
-    supportActionMatches,
-    hasCoreSignal: coreSignalCount > 0
+    dismissiveCount,
+    strongCount,
+    basicOnlyCount
   }
 }
 
 function buildReason({
-  selectedBand,
-  counters,
-  sentiment,
-  matchedKeywords,
-  validation,
-  lexiconBand,
-  lexiconHits,
-  scoringSource
+  triggerCount,
+  evaluatedResponseCount,
+  summary,
+  dataset,
+  topResponse,
+  missedTriggerCount,
+  preprocessingSource,
+  llmStressCount
 }) {
-  const counterSummary = `Category counters -> C0:${counters[0]}, C1:${counters[1]}, C2:${counters[2]}, C3:${counters[3]}.`
-  const sentimentSummary = `Sentiment signals -> positive:${sentiment.positiveHits}, negative:${sentiment.negativeHits}, net:${sentiment.sentimentScore}, suggested_band:${sentiment.band}.`
-  const validationSummary =
-    `Empathy signals -> acknowledgement:${validation.acknowledgementCount}, understanding:${validation.understandingCount}, empathetic_phrases:${validation.empatheticPhraseCount}, support_actions:${validation.supportActionCount}, weighted_score:${validation.weightedScore}.`
-  const consistencySummary =
-    `Consistency -> signal_segments:${validation.signalSegmentCount}, support_segments:${validation.supportActionSegmentCount}, qualified_segments:${validation.fullyQualifiedSegmentCount}.`
+  const parts = [
+    `Detected ${triggerCount} empathy trigger(s) from client messages and evaluated ${evaluatedResponseCount} immediate CSM response block(s).`,
+    `Distribution -> score_0:${summary.counters[0]}, score_1:${summary.counters[1]}, score_2:${summary.counters[2]}, score_3:${summary.counters[3]}, average:${summary.averageScore.toFixed(2)}.`,
+    `Empathy dataset from Json/empathy_data.json was used for semantic similarity support (${dataset.totalEntries} unique examples).`
+  ]
 
-  if (selectedBand === 0) {
-    return [
-      'No reliable empathy evidence was found beyond neutral/procedural handling.',
-      validationSummary,
-      consistencySummary,
-      counterSummary,
-      sentimentSummary,
-      'Final empathy score selected: 0.'
-    ].join(' ')
+  if (preprocessingSource === 'llm') {
+    parts.unshift(`LLM preprocessing identified ${llmStressCount} client stress segment(s) before empathy scoring.`)
+  } else {
+    parts.unshift('LLM preprocessing was unavailable, so the rule-based trigger detector was used as fallback before empathy scoring.')
   }
 
-  const representativeBand = lexiconHits > 0 ? lexiconBand : selectedBand
-  const topKeywords = [...(matchedKeywords[representativeBand] ?? [])].slice(0, 8).join(', ')
-  const sourceSummary = `Scoring source: ${scoringSource}.`
+  if (missedTriggerCount > 0) {
+    parts.push(`${missedTriggerCount} trigger(s) had no immediate CSM response to evaluate.`)
+  }
 
-  return [
-    counterSummary,
-    validationSummary,
-    consistencySummary,
-    sourceSummary,
-    topKeywords ? `Representative matched tokens for selected category: ${topKeywords}.` : '',
-    sentimentSummary
-  ]
-    .filter(Boolean)
-    .join(' ')
+  if (topResponse && topResponse.datasetMatchedText) {
+    parts.push(
+      `Closest dataset example: "${topResponse.datasetMatchedText}" (similarity ${topResponse.datasetSimilarity.toFixed(2)}).`
+    )
+  }
+
+  parts.push(`Final empathy band selected: ${summary.finalBand}.`)
+
+  return parts.join(' ')
 }
 
-function buildFailOutput(reason) {
+function buildNaOutput(reason) {
   return {
     parameter: 'Empathy',
-    empathy_score: 0,
+    empathy_score: null,
     score: 0,
-    status: 'BAND 0',
+    status: 'N/A',
+    trigger_detected: false,
+    trigger_count: 0,
+    evaluated_responses: 0,
     category_counters: {
       category_0: 0,
       category_1: 0,
       category_2: 0,
       category_3: 0
     },
-    sentiment: {
-      positive_signals: 0,
-      negative_signals: 0,
-      net_score: 0,
-      suggested_band: 1
-    },
     empathy_validation: {
       passed: false,
-      has_acknowledgement: false,
-      has_understanding: false,
-      has_empathetic_phrases: false,
-      has_support_actions: false,
-      acknowledgement_hits: 0,
-      understanding_hits: 0,
-      empathetic_phrase_hits: 0,
-      support_action_hits: 0,
-      core_signal_hits: 0,
-      weighted_score: 0,
-      recommended_band: 0,
-      signal_segments: 0,
-      support_action_segments: 0,
-      fully_qualified_segments: 0
+      framework_version: 'trigger-response-v2',
+      scoring_mode: 'not_applicable'
     },
     evidence_sections: [],
     reason
@@ -581,129 +744,108 @@ function buildFailOutput(reason) {
 
 export async function evaluateEmpathy(transcriptPayload) {
   const segments = extractTranscriptSegments(transcriptPayload)
-  const csmSegments = segments.filter((segment) => isCsmSpeaker(segment.speaker))
 
-  if (csmSegments.length === 0) {
-    return buildFailOutput('No CSM segments found, so empathy could not be evaluated.')
+  if (!Array.isArray(segments) || segments.length === 0) {
+    return buildNaOutput('No transcript segments found for empathy evaluation.')
   }
 
-  let levelKeywordSets
+  let dataset
   try {
-    levelKeywordSets = await loadEmpathyLexicon()
+    dataset = await loadEmpathyDataset()
   } catch {
-    return buildFailOutput('Empathy dataset could not be loaded from Json/empathy_data.json.')
+    return buildNaOutput('Empathy dataset could not be loaded from Json/empathy_data.json.')
   }
 
-  const { counters, matchedKeywords } = countEmpathyCategoryHits(csmSegments, levelKeywordSets)
-  const sentiment = analyzeSentiment(csmSegments)
-  const validation = analyzeEmpathyValidation(csmSegments)
-  const evidenceSections = collectEmpathyEvidenceSections(csmSegments, levelKeywordSets)
-  const totalCounterHits = counters[0] + counters[1] + counters[2] + counters[3]
-  const lexiconSelection = totalCounterHits > 0 ? selectDominantBand(counters) : null
-  const lexiconBand = lexiconSelection?.selectedBand ?? 0
-  const lexiconMaxCount = lexiconSelection?.maxCount ?? 0
+  const preprocessing = await collectPreprocessedTriggerResponseInteractions(segments)
+  const triggerResponseInteractions = preprocessing.interactions
+  const triggerCount = triggerResponseInteractions.reduce(
+    (count, item) => count + item.triggerSegments.length,
+    0
+  )
 
-  let selectedBand = validation.recommendedBand
-  let scoringSource = 'weighted'
+  if (triggerCount === 0) {
+    return buildNaOutput(
+      preprocessing.source === 'llm'
+        ? 'LLM preprocessing did not detect any client stress statement requiring empathy evaluation.'
+        : 'No empathy trigger was detected in client messages (concern, frustration, confusion, urgency, or completion difficulty).'
+    )
+  }
 
-  if (totalCounterHits > 0) {
-    if (validation.hasCoreSignal && lexiconBand >= 2 && lexiconMaxCount >= 2) {
-      selectedBand = Math.min(3, selectedBand + 1)
+  const scoredResponses = triggerResponseInteractions.map((interaction) =>
+    evaluateSingleResponse(interaction, dataset)
+  )
+
+  if (scoredResponses.length === 0) {
+    return buildNaOutput(
+      'Empathy trigger(s) were detected, but no immediate CSM response block was found for scoring.'
+    )
+  }
+
+  const summary = summarizeScores(scoredResponses)
+  const sortedByConfidence = [...scoredResponses].sort((left, right) => {
+    if (right.score !== left.score) {
+      return right.score - left.score
     }
+    return right.datasetSimilarity - left.datasetSimilarity
+  })
+  const topResponse = sortedByConfidence[0] ?? null
 
-    if (validation.hasCoreSignal && lexiconBand === 0 && validation.supportActionCount === 0) {
-      selectedBand = Math.max(0, selectedBand - 1)
+  const evidenceSections = sortedByConfidence.slice(0, MAX_EMPATHY_EVIDENCE_SECTIONS).map((item) => {
+    const firstResponseSegment = item.responseSegments[0]
+    const triggerText = item.triggerSegments.map((segment) => segment.text).join(' | ')
+
+    return {
+      timestamp: firstResponseSegment?.timestamp ?? null,
+      speaker: firstResponseSegment?.speaker ?? null,
+      text: item.responseText,
+      client_stress_statement: triggerText,
+      matched_signals: item.matchedSignals,
+      matched_phrases: item.matchedPhrases,
+      trigger_text: triggerText,
+      trigger_signals: [...new Set(item.triggerSegments.flatMap((segment) => segment.trigger_signals))],
+      stress_detection_source: item.stressDetectionSource,
+      stress_reasons: item.triggerSegments.map((segment) => segment.stress_reason).filter(Boolean),
+      response_score: item.score,
+      response_class: item.classLabel,
+      dataset_similarity: Number(item.datasetSimilarity.toFixed(4))
     }
-
-    scoringSource = 'weighted+lexicon'
-  }
-
-  if (
-    sentiment.negativeHits > 0 &&
-    validation.acknowledgementCount === 0 &&
-    validation.understandingCount <= 1 &&
-    validation.empatheticPhraseCount <= 1
-  ) {
-    selectedBand = Math.max(0, selectedBand - 1)
-  }
-
-  if (sentiment.negativeHits >= sentiment.positiveHits + 2) {
-    selectedBand = Math.min(selectedBand, 1)
-  }
-
-  if (
-    validation.hasCoreSignal &&
-    validation.signalSegmentCount >= 3 &&
-    validation.supportActionCount >= 2 &&
-    selectedBand === 1
-  ) {
-    selectedBand = 2
-  }
-
-  if (selectedBand >= 3 && validation.empatheticPhraseCount === 0) {
-    selectedBand = 2
-  }
-
-  if (
-    selectedBand >= 3 &&
-    validation.empatheticPhraseCount < 2 &&
-    validation.fullyQualifiedSegmentCount < 2
-  ) {
-    selectedBand = 2
-  }
-
-  if (!validation.hasCoreSignal && validation.supportActionCount < 2) {
-    selectedBand = 0
-  }
+  })
 
   return {
     parameter: 'Empathy',
-    empathy_score: selectedBand,
-    score: selectedBand,
-    status: `BAND ${selectedBand}`,
+    empathy_score: summary.finalBand,
+    score: summary.finalBand,
+    status: `BAND ${summary.finalBand}`,
+    trigger_detected: true,
+    trigger_count: triggerCount,
+    evaluated_responses: scoredResponses.length,
     category_counters: {
-      category_0: counters[0],
-      category_1: counters[1],
-      category_2: counters[2],
-      category_3: counters[3]
-    },
-    sentiment: {
-      positive_signals: sentiment.positiveHits,
-      negative_signals: sentiment.negativeHits,
-      net_score: sentiment.sentimentScore,
-      suggested_band: sentiment.band
+      category_0: summary.counters[0],
+      category_1: summary.counters[1],
+      category_2: summary.counters[2],
+      category_3: summary.counters[3]
     },
     empathy_validation: {
-      passed: selectedBand > 0,
-      has_acknowledgement: validation.hasAcknowledgement,
-      has_understanding: validation.hasUnderstanding,
-      has_empathetic_phrases: validation.hasEmpatheticPhrases,
-      has_support_actions: validation.hasSupportActions,
-      acknowledgement_hits: validation.acknowledgementCount,
-      understanding_hits: validation.understandingCount,
-      empathetic_phrase_hits: validation.empatheticPhraseCount,
-      support_action_hits: validation.supportActionCount,
-      core_signal_hits: validation.coreSignalCount,
-      weighted_score: validation.weightedScore,
-      recommended_band: validation.recommendedBand,
-      signal_segments: validation.signalSegmentCount,
-      support_action_segments: validation.supportActionSegmentCount,
-      fully_qualified_segments: validation.fullyQualifiedSegmentCount,
-      matched_acknowledgement_phrases: [...validation.acknowledgementMatches],
-      matched_understanding_phrases: [...validation.understandingMatches],
-      matched_empathetic_phrases: [...validation.empatheticPhraseMatches],
-      matched_support_action_phrases: [...validation.supportActionMatches]
+      passed: summary.finalBand > 0,
+      framework_version: 'trigger-response-v3-llm-preprocessed',
+      scoring_mode: 'rule_plus_dataset_similarity',
+      preprocessing_source: preprocessing.source,
+      llm_detected_stress_segments: preprocessing.llmStressCount,
+      average_response_score: Number(summary.averageScore.toFixed(2)),
+      dismissive_response_count: summary.dismissiveCount,
+      strong_support_response_count: summary.strongCount,
+      basic_acknowledgement_response_count: summary.basicOnlyCount
     },
     evidence_sections: evidenceSections,
     reason: buildReason({
-      selectedBand,
-      counters,
-      sentiment,
-      matchedKeywords,
-      validation,
-      lexiconBand,
-      lexiconHits: totalCounterHits,
-      scoringSource
+      triggerCount,
+      evaluatedResponseCount: scoredResponses.length,
+      summary,
+      dataset,
+      topResponse,
+      missedTriggerCount: triggerCount - scoredResponses.length,
+      preprocessingSource: preprocessing.source,
+      llmStressCount: preprocessing.llmStressCount
     })
   }
 }

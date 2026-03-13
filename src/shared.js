@@ -296,15 +296,10 @@ function collectEscalationMatchesFromSegments(segments) {
 
   for (const segment of segments) {
     const normalizedSpeaker = normalizeText(segment.speaker)
-    const normalizedText = normalizeText(segment.text)
 
     for (const escalationName of NORMALIZED_ESCALATION_MEMBER_NAMES) {
       if (isNameMatch(normalizedSpeaker, escalationName)) {
         addEscalationMatch(matchMap, escalationName, segment.timestamp, 'speaker')
-      }
-
-      if (normalizedText.includes(escalationName)) {
-        addEscalationMatch(matchMap, escalationName, segment.timestamp, 'text')
       }
     }
   }
@@ -315,16 +310,6 @@ function collectEscalationMatchesFromSegments(segments) {
 export function detectEscalationSignal(transcriptPayload) {
   const segments = extractTranscriptSegments(transcriptPayload)
   const matchMap = collectEscalationMatchesFromSegments(segments)
-
-  if (matchMap.size === 0) {
-    const normalizedTranscript = normalizeText(parseTranscriptInput(transcriptPayload))
-
-    for (const escalationName of NORMALIZED_ESCALATION_MEMBER_NAMES) {
-      if (normalizedTranscript.includes(escalationName)) {
-        addEscalationMatch(matchMap, escalationName, null, 'transcript')
-      }
-    }
-  }
 
   const escalationMatches = [...matchMap.values()]
 
