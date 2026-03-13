@@ -1,4802 +1,679 @@
-[
+{
+  "SlangInformal Language": [
     {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
+      "Phrase": "I already told you many times",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "0"
     },
     {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
+      "Phrase": "I am busy now",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
+      "Phrase": "I am telling ",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
+      "Phrase": "I cannot help you in this",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
+      "Phrase": "I cannot repeat again",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "0"
     },
     {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
+      "Phrase": "I don't know, you check online",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
+      "Phrase": "I will check and revert back",
+      "Base Severity Weight (0-5)": "1",
+      "Frequency Threshold ": "4"
     },
     {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
+      "Phrase": "already I explained",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
+      "Phrase": "do fast",
+      "Base Severity Weight (0-5)": "3",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
+      "Phrase": "don't argue with me",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "0"
     },
     {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
+      "Phrase": "hold on ",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
+      "Phrase": "it is not possible",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
+      "Phrase": "it will take little bit time only",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "4"
     },
     {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
+      "Phrase": "just check once",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
+      "Phrase": "just wait only",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
+      "Phrase": "kindly do one thing",
+      "Base Severity Weight (0-5)": "3",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
+      "Phrase": "nothing can be done",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
+      "Phrase": "please listen properly",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
+      "Phrase": "sir please calm down",
+      "Base Severity Weight (0-5)": "3",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
+      "Phrase": "system is slow only",
+      "Base Severity Weight (0-5)": "1",
+      "Frequency Threshold ": "4"
     },
     {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
+      "Phrase": "talk to someone else",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
+      "Phrase": "that is not my mistake",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
+      "Phrase": "that only I told you earlier",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
+      "Phrase": "this is basic thing",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
+      "Phrase": "this is common sense",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
+      "Phrase": "this is company policy only",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
+      "Phrase": "this is not my department",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
+      "Phrase": "this is not my headache",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "0"
     },
     {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
+      "Phrase": "this is your mistake only",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "0"
     },
     {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
+      "Phrase": "wait properly",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
+      "Phrase": "what nonsense is this",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
+      "Phrase": "what you are telling",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
+      "Phrase": "what you want exactly",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
+      "Phrase": "why are you shouting",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
+      "Phrase": "why you are doing like this",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
+      "Phrase": "why you called again",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "0"
     },
     {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
+      "Phrase": "why you can't understand",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "0"
     },
     {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
+      "Phrase": "why you didn't do earlier",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "0"
     },
     {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
+      "Phrase": "ya ya I know",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
+      "Phrase": "you are not getting my point",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
+      "Phrase": "you are wasting time",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
+      "Phrase": "you are wrong",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
+      "Phrase": "you check and tell me",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
+      "Phrase": "you didn't follow instructions",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
+      "Phrase": "you didn't understand",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
+      "Phrase": "you do like this only",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
+      "Phrase": "you should know this",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
+      "Phrase": "you wait",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
+      "Phrase": "please cooperate",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
+      "Phrase": "you are not listening",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
+      "Phrase": "I already explained this",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
+      "Phrase": "you should understand this",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
+      "Phrase": "please don't interrupt",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
+      "Phrase": "that is not my responsibility",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
+      "Phrase": "this is not my job",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "0"
     },
     {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
+      "Phrase": "you should read the email",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
+      "Phrase": "that was already mentioned",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
+      "Phrase": "you misunderstood",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
+      "Phrase": "please check your side",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
+      "Phrase": "you did not follow the process",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
+      "Phrase": "this is clearly written",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
+      "Phrase": "that is obvious",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
+      "Phrase": "I cannot do anything",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
+      "Phrase": "you must wait",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
+      "Phrase": "this is not how it works",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
+      "Phrase": "why didn't you check before",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "0"
     },
     {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
+      "Phrase": "please do not repeat the same question",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
+      "Phrase": "you are confusing things",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
+      "Phrase": "I told you already",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
+      "Phrase": "you should have done this earlier",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
+      "Phrase": "that is your responsibility",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "0"
     },
     {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
+      "Phrase": "please talk to support",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
+      "Phrase": "I cannot promise anything",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
+      "Phrase": "please be patient",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
+      "Phrase": "that is beyond my control",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
+      "Phrase": "you need to wait",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
+      "Phrase": "we cannot change that",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
+      "Phrase": "that is how the system works",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
+      "Phrase": "you must follow instructions",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
+      "Phrase": "you should know the process",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
+      "Phrase": "please check the guidelines",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
+      "Phrase": "please cooperate",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
+      "Phrase": "you are not listening",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
+      "Phrase": "I already explained this",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
+      "Phrase": "you should understand this",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
+      "Phrase": "please don't interrupt",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
+      "Phrase": "that is not my responsibility",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
+      "Phrase": "this is not my job",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "0"
     },
     {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
+      "Phrase": "you should read the email",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
+      "Phrase": "that was already mentioned",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
+      "Phrase": "you misunderstood",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
+      "Phrase": "please check your side",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
+      "Phrase": "you did not follow the process",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
+      "Phrase": "this is clearly written",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
+      "Phrase": "that is obvious",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
+      "Phrase": "I cannot do anything",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
+      "Phrase": "you must wait",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
+      "Phrase": "this is not how it works",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
+      "Phrase": "why didn't you check before",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "0"
     },
     {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
+      "Phrase": "please do not repeat the same question",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
+      "Phrase": "you are confusing things",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
+      "Phrase": "I told you already",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
+      "Phrase": "you should have done this earlier",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
+      "Phrase": "that is your responsibility",
+      "Base Severity Weight (0-5)": "5",
+      "Frequency Threshold ": "0"
     },
     {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
+      "Phrase": "please talk to support",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
+      "Phrase": "I cannot promise anything",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
+      "Phrase": "please be patient",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
+      "Phrase": "that is beyond my control",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
+      "Phrase": "you need to wait",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
+      "Phrase": "we cannot change that",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
+      "Phrase": "that is how the system works",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
+      "Phrase": "you must follow instructions",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
+      "Phrase": "you should know the process",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
+      "Phrase": "please check the guidelines",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "3"
     },
     {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
+      "Phrase": "whatever",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "1"
     },
     {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
+      "Phrase": "obviously",
+      "Base Severity Weight (0-5)": "3",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
+      "Phrase": "clearly",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
+      "Phrase": "you know",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
+      "Phrase": "like I said",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
+      "Phrase": "as I said",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
+      "Phrase": "I told you",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
+      "Phrase": "you should know",
+      "Base Severity Weight (0-5)": "3",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
+      "Phrase": "seriously",
+      "Base Severity Weight (0-5)": "4",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
+      "Phrase": "come on",
+      "Base Severity Weight (0-5)": "3",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
+      "Phrase": "relax",
+      "Base Severity Weight (0-5)": "3",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
+      "Phrase": "calm down",
+      "Base Severity Weight (0-5)": "1",
+      "Frequency Threshold ": "4"
     },
     {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
+      "Phrase": "listen",
+      "Base Severity Weight (0-5)": "3",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
+      "Phrase": "look",
+      "Base Severity Weight (0-5)": "3",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
+      "Phrase": "actually",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
+      "Phrase": "basically",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
+      "Phrase": "literally",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
+      "Phrase": "like",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
+      "Phrase": "you know",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
+      "Phrase": "kind of",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "2"
     },
     {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "believe me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gotta",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "nah",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "sort of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "dude",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "gonna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "hang on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "hold on",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "alrighty",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "kind of",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "you know",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "yeah",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "pretty much",
-        "Base Severity Weight": 1
-    },
-    {
-        "Phrase": "wanna",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "yup",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "cool",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "trust me",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "no worries",
-        "Base Severity Weight": 2
-    },
-    {
-        "Phrase": "no offense",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "whatever",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "bro",
-        "Base Severity Weight": 3
-    },
-    {
-        "Phrase": "basically",
-        "Base Severity Weight": 1
+      "Phrase": "sort of",
+      "Base Severity Weight (0-5)": "2",
+      "Frequency Threshold ": "2"
     }
-]
+  ]
+}
