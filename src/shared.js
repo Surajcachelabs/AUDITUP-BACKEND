@@ -1,7 +1,9 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const JSON_DIR = path.join(process.cwd(), 'Json')
+const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url))
+const JSON_DIR = path.join(MODULE_DIR, '..', 'Json')
 const TIMESTAMP_LINE_REGEX =
   /^\s*["']?\[?(\d{1,2}(?::\d{2}){1,2}(?:\.\d+)?)\s*(?:-\s*(\d{1,2}(?::\d{2}){1,2}(?:\.\d+)?))?\]?\s*([A-Za-z][A-Za-z ]*)\s*:\s*(.*?)["']?\s*,?\s*$/
 const SPEAKER_ONLY_LINE_REGEX = /^\s*["']?([A-Za-z][A-Za-z ]*)\s*:\s*(.*?)\s*["']?\s*,?\s*$/

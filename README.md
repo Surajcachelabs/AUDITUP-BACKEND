@@ -20,6 +20,29 @@ npm run dev
 
 Server runs on `http://localhost:8000` by default.
 
+## Environment variables
+
+Copy `.env.example` to `.env` and set values for your environment.
+
+Required:
+
+- `OPENAI_API_KEY`: OpenAI key used by fallback evaluators.
+
+Optional:
+
+- `OPENAI_MODEL`: model override (default is `gpt-5.3-codex`).
+- `CORS_ORIGIN`: comma-separated allowed frontend origins.
+- `PORT`: local port override (hosts usually provide this automatically).
+
+Production example:
+
+```env
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-5.3-codex
+CORS_ORIGIN=https://your-frontend-domain.com
+PORT=8000
+```
+
 ## API
 
 `POST /api/evaluate`
